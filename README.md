@@ -1,5 +1,5 @@
 ***
-# My kernel linux-lingruby-ll
+# My kernel linux-LG-ll
 
 ###### for
 
