@@ -506,7 +506,7 @@ sha512sums=('SKIP'
             'SKIP'
             'fb9fd9e48edf8da4eaf38764c17fe7d7f7e2ba839591376fdb6b9a5a3a1ba67fc46f4ca9c958e3f5bbc50643d8f5e2bb54093ac04f097c0829b942649c107ed0'
             'SKIP'
-            'a24573c71652e2635260b1f585a5ae77b2c867aa64d3c15a0caa1c17919fe6798ca3377511fde08532de135501711e3f4de8c1a8aaeb14420b43081cf5866097')
+            'e50bd85b783820434f12258def78aee3a0bbbb34909a02dd85df0d5c7f7c14217b49a8ee0cd231d78f1b55d845ae3b596da39181cab4d5c06371fbcdab86af0b')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
