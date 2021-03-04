@@ -109,7 +109,7 @@ _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.2.ll20
+pkgver=5.11.3.ll27
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -159,7 +159,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll20'
+ _lucjanrev='ll27'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -184,7 +184,7 @@ fi
 
 source=("git://git.kernel.org/pub/scm/linux/kernel/git/stable/${_srcname}.git#branch=linux-${_major}.y"
         # ll-reverts
-        "${_llrevpath}/${_llrevpatch}"{,.sig}
+        # "${_llrevpath}/${_llrevpatch}"{,.sig}
         # linux-lucjan
         "${_lucjanpath}/${_lucjanpatch}"{,.sig}
         # the main kernel config files
@@ -502,11 +502,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'da15889d0ef6765242305ba586f7699983f8d35d677581e8c287d576880e00ae457609f69733b4c241750659ba5851313fae1491e31ad9d5215ab5a2bc92483f'
+            '8ab377545600961c9981310935238d3069392140ce7b3243d21777422dc1a7812e3f21d987f30830a4e8bff166dbb74330b28813af864539db81c4030ec7f188'
             'SKIP'
-            'fabf75e9d46e913b1c17219f026069a32642771f9bd3ed228c25dbe735c46ef65eeb9866c3f67ea77bc54f41813d65e23f13df67392511969ffa66ca23d127ff'
-            'SKIP'
-            '29c41b1155085b8f37dff01bfcf5802fd322a5f7c42674054db2885bf8b5b4697c8a4637913380d2e77ccfb9769edd650ff598718e2ba03a688f5ee6c8e9f667')
+            '6792557368cbd478ca7723c1ac0cd1cf3b2b9dd62844853faa47a3126c2742586f660ce333ff767bf981f4c23a2ca64b7187b8b74207b4f37b526e5e83b53fa5')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
