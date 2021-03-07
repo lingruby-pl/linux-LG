@@ -109,12 +109,12 @@ _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.3.ll28
+pkgver=5.11.4.ll28
 pkgrel=1
 pkgdesc='Linux LL'
-arch=('x86_64')
 url="https://github.com/lingruby-pl/linux-lingruby"
-license=('GPL2')
+arch=(x86_64)
+license=(GPL2)
 options=('!strip')
 makedepends=('kmod' 'bc' 'libelf' 'git' 'imagemagick')
 if [ -n "$_zstd_modules" ]; then
@@ -190,35 +190,31 @@ source=("git://git.kernel.org/pub/scm/linux/kernel/git/stable/${_srcname}.git#br
         # the main kernel config files
         'config')
 
+
 export KBUILD_BUILD_HOST=spectrwm
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
 
 prepare() {
-    cd $_srcname
+  cd $_srcname
 
-    ### Setting version
-        echo "Setting version..."
-        sed -e "/^EXTRAVERSION =/s/=.*/=/" -i Makefile
-        touch .scmversion
-        scripts/setlocalversion --save-scmversion
-        echo "-$pkgrel" > localversion.10-pkgrel
-        echo "${pkgbase#linux}" > localversion.20-pkgname
+  echo "Setting version..."
+  scripts/setlocalversion --save-scmversion
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
 
-    ### Patching sources
-        local src
-        for src in "${source[@]}"; do
-          src="${src%%::*}"
-          src="${src##*/}"
-          [[ $src = *.patch ]] || continue
-          echo "Applying patch $src..."
-          patch -Np1 < "../$src"
-        done
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
 
-    ### Setting config
-        echo "Setting config..."
-        cp ../config .config
+  echo "Setting config..."
+  cp ../config .config
 
     ### Optionally use running kernel's config
 	# code originally by nous; http://aur.archlinux.org/packages.php?ID=40191
@@ -382,7 +378,6 @@ prepare() {
 
 build() {
   cd $_srcname
-
   make all
 }
 
@@ -504,7 +499,7 @@ done
 sha512sums=('SKIP'
             'aa42cf95ec545c977ef420ca61c4f3fb74f233848887332e7a12946d7405124a015f399b30549dd15b4bf4dcbb703eabe5623c1200d72f9085f0acc62133aff0'
             'SKIP'
-            '57d32cbda1e34a6a99001af1e1e38d4f47cb705088e7832dc6a1cc91330ff90fc5c687fb7c3b32b23fd6f64268a2008c8cfe59a61ae3d6fc8751f8a1a3a341f5')
+            'b409b470f46a56b2e44c54a3dab5ca55517c8dfce80ecbe9583513b7522dd63497f2ed23270c98d15606f3906ba5ba64ec71f210499f492726b953c76f2ce04e')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
