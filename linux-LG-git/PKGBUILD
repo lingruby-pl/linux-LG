@@ -109,7 +109,7 @@ _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.6.ll34
+pkgver=5.11.7.ll40
 pkgrel=1
 pkgdesc='Linux LL'
 url="https://github.com/lingruby-pl/linux-lingruby"
@@ -159,7 +159,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll34'
+ _lucjanrev='ll40'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -497,9 +497,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'aa09c9a6e4e8d0ab8c8c4377b2132acf13d6048f1e54ba19d9f03d277c5b0b2a0dab58ad914f897f5edc8dfbfa43191fab031e0be80abbb6b4e550929c46cf13'
+            '21dc5821393a5cf4e75fcef4fb0e98cb4bd42b65b3769ffce97f1d900e215e0a0cad6cbeb0b6ffdc645c9f6dd24f2b1512862d0b0ded499df524d01f7184668c'
             'SKIP'
-            'a9560472f18cc397de8693c1b7efeb52e865a212b72a89878f0f87a46f3dd85847d76818b2021a5c6cd3dc7469fed2f555c41bb3bd29e0909545c021b2d78b0c')
+            'f5e6ed3a7d6b5380d71c0fd21e66614e61f9cf16450ea95399e67f1ffd4402b9d968a207bc457404f73159876aa3ed816326d06db2702e5bb8ed2959983cf739')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
