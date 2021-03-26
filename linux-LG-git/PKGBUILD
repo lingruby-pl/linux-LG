@@ -89,6 +89,12 @@ _zstd_modules=y
 ### WireGuard: y=enable full built-in, n=disable entirely, empty=with no changes in config
 _wireguard=y
 
+### Disable TUNER
+_media_tuner=y
+
+### Disable DVB
+_dvb=y
+
 ### Download ll-reverts patchset
 # ATTENTION - one of two predefined values should be selected!
 # 'stable' - stable releases (recommended)
@@ -104,16 +110,16 @@ _linux_lucjan='actual'
 
 ### Do not edit below this line unless you know what you're doing
 
-pkgbase=linux-LG-git
+pkgbase=linux-lg-git+
 _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.8.ll45
+pkgver=5.11.10.ll51
 pkgrel=1
 pkgdesc='Linux LL'
-url="https://github.com/lingruby-pl/linux-lingruby"
-arch=(x86_64)
+arch=('x86_64')
+url="https://github.com/lingruby-pl/linux-LG/blob/master/README.md"
 license=(GPL2)
 options=('!strip')
 makedepends=('kmod' 'bc' 'libelf' 'git' 'imagemagick')
@@ -159,7 +165,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll45'
+ _lucjanrev='ll51'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -190,31 +196,35 @@ source=("git://git.kernel.org/pub/scm/linux/kernel/git/stable/${_srcname}.git#br
         # the main kernel config files
         'config')
 
-
 export KBUILD_BUILD_HOST=spectrwm
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
 
 prepare() {
-  cd $_srcname
+    cd $_srcname
 
-  echo "Setting version..."
-  scripts/setlocalversion --save-scmversion
-  echo "-$pkgrel" > localversion.10-pkgrel
-  echo "${pkgbase#linux}" > localversion.20-pkgname
+    ### Setting version
+        echo "Setting version..."
+        sed -e "/^EXTRAVERSION =/s/=.*/=/" -i Makefile
+        touch .scmversion
+        scripts/setlocalversion --save-scmversion
+        echo "-$pkgrel" > localversion.10-pkgrel
+        echo "${pkgbase#linux}" > localversion.20-pkgname
 
-  local src
-  for src in "${source[@]}"; do
-    src="${src%%::*}"
-    src="${src##*/}"
-    [[ $src = *.patch ]] || continue
-    echo "Applying patch $src..."
-    patch -Np1 < "../$src"
-  done
+    ### Patching sources
+        local src
+        for src in "${source[@]}"; do
+          src="${src%%::*}"
+          src="${src##*/}"
+          [[ $src = *.patch ]] || continue
+          echo "Applying patch $src..."
+          patch -Np1 < "../$src"
+        done
 
-  echo "Setting config..."
-  cp ../config .config
+    ### Setting config
+        echo "Setting config..."
+        cp ../config .config
 
     ### Optionally use running kernel's config
 	# code originally by nous; http://aur.archlinux.org/packages.php?ID=40191
@@ -349,15 +359,40 @@ prepare() {
 		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
 		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
 	fi
+	
+		
+	
+	msg "Disable DVB devices"
+	for line in $( grep -i CONFIG_="DVB_" .config ); do
+		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
+		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
+	done
+	
+	### Disable DVB
+	if [ "$_dvb" = y ]; then
+		echo "Disable DVB..."
+		sed -i -e 's/^# CONFIG_DVB_CORE.*/CONFIG_DVB_CORE=n/' \
+		-i -e 's/^CONFIG_DVB_CORE=.*/CONFIG_DVB_CORE=n/' ./.config
+	fi
 
     ### Rewrite configuration
         echo "Rewrite configuration..."
         make prepare
         yes "" | make config >/dev/null
+	
+	### Disable TUNER
+	if [ "$_media_tuner" = y ]; then
+		echo "Disable TUNER..."
+		sed -i -e 's/^# CONFIG_MEDIA_TUNER.*/CONFIG_MEDIA_TUNER=n/' \
+		-i -e 's/^CONFIG_MEDIA_TUNER=.*/CONFIG_MEDIA_TUNER=n/' ./.config
+		sed -i -e 's/^# CONFIG_MEDIA_TUNER_SIMPLE.*/CONFIG_MEDIA_TUNER_SIMPLE=n/' \
+		-i -e 's/^CONFIG_MEDIA_TUNER_SIMPLE=.*/CONFIG_MEDIA_TUNER_SIMPLE=n/' ./.config
+	fi
 
     ### Prepared version
         make -s kernelrelease > version
         echo "Prepared $pkgbase version $(<version)"
+        
 
     ### Running make nconfig
 	[[ -z "$_makenconfig" ]] ||  make nconfig
@@ -378,6 +413,7 @@ prepare() {
 
 build() {
   cd $_srcname
+
   make all
 }
 
@@ -487,6 +523,7 @@ _package-headers() {
 }
 
 
+  cd $_srcname
 
 pkgname=("$pkgbase" "$pkgbase-headers")
 for _p in "${pkgname[@]}"; do
@@ -497,9 +534,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'ead4eb3bfd83a4719ced6f47449eda939cc9ac39eefb0b592cd2a77f1015b119c2437fbb02070089dab5848365632a5af60dd9735ec07afe6be2addfeede0b8f'
+            'd623973453dc90ebc88c64d0e73009e7118ae7dc2d1c093334eb75cc47ef73675b127c026997980055b6dc0b4731745f8e5cf8668b07d164c178fd770e7066a8'
             'SKIP'
-            '285018fe4bcb16cd70a5bb4492679b22fba2bff129ec9c299e1ece57c5d85890d64ccb4112ef9e680ec1b8758863327510e5ae091d5a849d5ce1e268b498eb7a')
+            'fb7c94778d56d78536b5d7ad1f1490f720889d4456d41efdad4437c397dae554f7dc687b009592660f81d77c50a2d4b6a6bff1ebfd907728d70e1c5aa27eebe2')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
