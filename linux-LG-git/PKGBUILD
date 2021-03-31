@@ -110,12 +110,12 @@ _linux_lucjan='actual'
 
 ### Do not edit below this line unless you know what you're doing
 
-pkgbase=linux-lg-git+
+pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.10.ll51
+pkgver=5.11.11.ll60
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -165,7 +165,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll51'
+ _lucjanrev='ll60'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -359,40 +359,45 @@ prepare() {
 		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
 		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
 	fi
-	
-		
-	
+
+	### Rewrite configuration
+		echo "Rewrite configuration..."
+		make prepare
+		yes "" | make config >/dev/null
+
+	### Disable DVB
+	if [ "$_dvb" = y ]; then
+		echo "Disable DVB..."
+		sed -i -e 's/^# CONFIG_DVB_CORE.*/CONFIG_DVB_CORE is not set/' \
+		-i -e 's/^CONFIG_DVB_CORE=.*/CONFIG_DVB_CORE is not set/' ./.config
+	fi
+
+
+	### Disable TUNER
+	if [ "$_media_tuner" = y ]; then
+		echo "Disable TUNER..."
+		sed -i -e 's/^# CONFIG_MEDIA_TUNER.*/CONFIG_MEDIA_TUNER is not set/' \
+		-i -e 's/^CONFIG_MEDIA_TUNER=.*/CONFIG_MEDIA_TUNER is not set/' ./.config
+		sed -i -e 's/^# CONFIG_MEDIA_TUNER_SIMPLE.*/CONFIG_MEDIA_TUNER_SIMPLE is not set/' \
+		-i -e 's/^CONFIG_MEDIA_TUNER_SIMPLE=.*/CONFIG_MEDIA_TUNER_SIMPLE is not set/' ./.config
+  fi
+
 	msg "Disable DVB devices"
 	for line in $( grep -i CONFIG_="DVB_" .config ); do
 		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
 		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
 	done
-	
-	### Disable DVB
-	if [ "$_dvb" = y ]; then
-		echo "Disable DVB..."
-		sed -i -e 's/^# CONFIG_DVB_CORE.*/CONFIG_DVB_CORE=n/' \
-		-i -e 's/^CONFIG_DVB_CORE=.*/CONFIG_DVB_CORE=n/' ./.config
-	fi
 
-    ### Rewrite configuration
-        echo "Rewrite configuration..."
-        make prepare
-        yes "" | make config >/dev/null
-	
-	### Disable TUNER
-	if [ "$_media_tuner" = y ]; then
-		echo "Disable TUNER..."
-		sed -i -e 's/^# CONFIG_MEDIA_TUNER.*/CONFIG_MEDIA_TUNER=n/' \
-		-i -e 's/^CONFIG_MEDIA_TUNER=.*/CONFIG_MEDIA_TUNER=n/' ./.config
-		sed -i -e 's/^# CONFIG_MEDIA_TUNER_SIMPLE.*/CONFIG_MEDIA_TUNER_SIMPLE=n/' \
-		-i -e 's/^CONFIG_MEDIA_TUNER_SIMPLE=.*/CONFIG_MEDIA_TUNER_SIMPLE=n/' ./.config
-	fi
+	msg "Disable MEDIA_TUNER devices"
+		for line in $( grep -i CONFIG_="MEDIA_TUNER_" .config ); do
+		msg2 "$(echo '$line' | grep 'MEDIA_TUNER_' | awk -F'=' '{print $1}')"
+		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
+	done
 
-    ### Prepared version
-        make -s kernelrelease > version
-        echo "Prepared $pkgbase version $(<version)"
-        
+	### Prepared version
+		make -s kernelrelease > version
+		echo "Prepared $pkgbase version $(<version)"
+
 
     ### Running make nconfig
 	[[ -z "$_makenconfig" ]] ||  make nconfig
@@ -477,11 +482,6 @@ _package-headers() {
   # http://bugs.archlinux.org/task/13146
   install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
 
-  # http://bugs.archlinux.org/task/20402
-  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
-  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
-  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
-
   echo "Installing KConfig files..."
   find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
 
@@ -534,9 +534,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'd623973453dc90ebc88c64d0e73009e7118ae7dc2d1c093334eb75cc47ef73675b127c026997980055b6dc0b4731745f8e5cf8668b07d164c178fd770e7066a8'
+            '57fae77d24c9fa62a573422dfcafddd27da2efe38ce6a5d03fe452901f67bea93ede41c9c52836e6b51fc65a14e97ccfd89c8413f8b33324a2a91043beb048fa'
             'SKIP'
-            'fb7c94778d56d78536b5d7ad1f1490f720889d4456d41efdad4437c397dae554f7dc687b009592660f81d77c50a2d4b6a6bff1ebfd907728d70e1c5aa27eebe2')
+            'a772729ae1bb893e6cbc8b6bea62eb2702230bb8c0188b3663d1be864fdbe55c4e9111463d9fc93466bfdd9d9fed6b01623564659325e530840f8a766bc04d76')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
