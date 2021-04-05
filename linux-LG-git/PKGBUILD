@@ -343,8 +343,20 @@ prepare() {
   		scripts/config --disable CONFIG_MEDIA_TUNER_SIMPLE
     fi
 
+  	msg "Disable DVB devices"
+  	for line in $( grep -i CONFIG_="DVB_" .config ); do
+  		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
+  		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
+  	done
+
+  	msg "Disable MEDIA_TUNER devices"
+  		for line in $( grep -i CONFIG_="MEDIA_TUNER_" .config ); do
+  		msg2 "$(echo '$line' | grep 'MEDIA_TUNER_' | awk -F'=' '{print $1}')"
+  		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
+  	done
+
     ### Optionally load needed modules for the make localmodconfig
-        # See https://aur.archlinux.org/packages/modprobed-db
+    # See https://aur.archlinux.org/packages/modprobed-db
 	if [ -n "$_localmodcfg" ]; then
 		if [ -f $HOME/.config/modprobed.db ]; then
 		echo "Running Steven Rostedt's make localmodconfig now"
@@ -373,18 +385,6 @@ prepare() {
 		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
 		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
 	fi
-
-	msg "Disable DVB devices"
-	for line in $( grep -i CONFIG_="DVB_" .config ); do
-		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
-		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
-	done
-
-	msg "Disable MEDIA_TUNER devices"
-		for line in $( grep -i CONFIG_="MEDIA_TUNER_" .config ); do
-		msg2 "$(echo '$line' | grep 'MEDIA_TUNER_' | awk -F'=' '{print $1}')"
-		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
-	done
 
 	### Rewrite configuration
 		echo "Rewrite configuration..."
@@ -533,7 +533,7 @@ done
 sha512sums=('SKIP'
             '5451a26a8a9cfcf2fe64b7b15809ac20186113451aaa0074fe371993f52ca516fe8e8cc43787234cb1658714703b50eb36fc81c2d99d64d3e985e3e32d3c407c'
             'SKIP'
-            '8e3eb38e753159bb471f119880e462425e65959a7b4d36138fa07fdc74f4ea15ba5d087dc0c90022e5ee74547e727a8ab48c83f9c1358daed5df83e7a6478785')
+            '9a29e971dfd324527cfe745ed35def0a371776a4488fd6b75a0b33009c776799dc1fd0eba6e76ab7145bbdad11d9c359b601cede4b190536088e8689cdd99be4')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
