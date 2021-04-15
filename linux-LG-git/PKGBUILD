@@ -74,6 +74,12 @@ _1k_HZ_ticks=y
 ### Enable protect file mappings under memory pressure
 _mm_protect=y
 
+### Selecting the ZSTD compression level
+# ATTENTION - one of two predefined values should be selected!
+# 'ultra' - highest compression ratio
+# 'normal' - standard compression ratio
+_zstd_level='ultra'
+
 ### Enable MODULE_COMPRESS_ZSTD
 # WARNING Not recommended.
 # An experimental solution, still in testing phase.
@@ -322,6 +328,17 @@ prepare() {
 		scripts/config --disable CONFIG_NUMA
 	fi
 
+    ### Selecting the ZSTD compression level
+	if [ "$_zstd_level" = "ultra" ]; then
+		echo "Enabling highest ZSTD compression ratio..."
+		scripts/config --set-val CONFIG_KERNEL_ZSTD_LEVEL 19
+		scripts/config --enable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
+	elif [ "$_zstd_level" = "normal" ]; then
+		echo "Enabling standard ZSTD compression ratio..."
+		scripts/config --set-val CONFIG_KERNEL_ZSTD_LEVEL 19
+		scripts/config --disable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
+	fi
+
     ### Enable MODULE_COMPRESS_ZSTD
 	if [ -n "$_zstd_modules" ]; then
 		echo "Enabling ZSTD module compression..."
@@ -355,6 +372,25 @@ prepare() {
   		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
   	done
 
+  	### Enable WireGuard
+  	if [ "$_wireguard" = y ]; then
+  		echo "Enabling WireGuard built-in..."
+  		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=y/' \
+  		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=y/' ./.config
+  		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=y/' \
+  		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=y/' ./.config
+  		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=y/' \
+  		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=y/' ./.config
+  	elif [ "$_wireguard" = n ]; then
+  		echo "Disabling WireGuard"
+  		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=n/' \
+  		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=n/' ./.config
+  		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=n/' \
+  		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=n/' ./.config
+  		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
+  		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
+  	fi
+
     ### Optionally load needed modules for the make localmodconfig
     # See https://aur.archlinux.org/packages/modprobed-db
 	if [ -n "$_localmodcfg" ]; then
@@ -367,25 +403,6 @@ prepare() {
 		fi
 	fi
 
-    ### Enable WireGuard
-	if [ "$_wireguard" = y ]; then
-		echo "Enabling WireGuard built-in..."
-		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=y/' \
-		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=y/' ./.config
-		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=y/' \
-		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=y/' ./.config
-		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=y/' \
-		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=y/' ./.config
-	elif [ "$_wireguard" = n ]; then
-		echo "Disabling WireGuard"
-		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=n/' \
-		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=n/' ./.config
-		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=n/' \
-		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=n/' ./.config
-		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
-		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
-	fi
-
 	### Rewrite configuration
 		echo "Rewrite configuration..."
 		make prepare
@@ -394,7 +411,6 @@ prepare() {
 	### Prepared version
 		make -s kernelrelease > version
 		echo "Prepared $pkgbase version $(<version)"
-
 
     ### Running make nconfig
 	[[ -z "$_makenconfig" ]] ||  make nconfig
@@ -533,7 +549,7 @@ done
 sha512sums=('SKIP'
             '53c7dcff25bb5bc78d9e772007836901774b47ffc9200cdee2582e197c67892fc37255e3119f9874ddd9263db3686bdfafc3fa193137a36e2dfe68087191d013'
             'SKIP'
-            'a3fa0659df966c79eb58f0f3ea159956dc709c294a120ac0ea21e7939cc1558a70fdc5f8407c2b294047c4bd4634d7a8d6a6d20f400f462d55e4d6214549a899')
+            'ee0998cda557165478213627a69d8569ec6caa4752dd06c6418d3fcee4fabfc0e82fd440916f74002fdc2417e02149e34df8aa1a45a76f43a51d60a4e2dd249b')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
