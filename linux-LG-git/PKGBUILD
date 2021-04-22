@@ -47,8 +47,12 @@ _use_current=
 # 'no' - disable linux-lucjan branding
 _ll_branding='yes'
 
-### Setting GCC Flags for CONFIG_MHASWELL
-_gcc_haswell=y
+### Setting GCC Flags GCC flags for your processor
+# To see which option to select, run the command:
+# gcc -c -Q -march=native --help=target | grep march
+# You can find the full list below:
+# https://github.com/graysky2/kernel_gcc_patch#expanded-cpus-include
+_gcc_tune=y
 
 ### Set performance governor as default
 _per_gov=y
@@ -74,12 +78,6 @@ _1k_HZ_ticks=y
 ### Enable protect file mappings under memory pressure
 _mm_protect=y
 
-### Selecting the ZSTD compression level
-# ATTENTION - one of two predefined values should be selected!
-# 'ultra' - highest compression ratio
-# 'normal' - standard compression ratio
-_zstd_level='ultra'
-
 ### Enable MODULE_COMPRESS_ZSTD
 # WARNING Not recommended.
 # An experimental solution, still in testing phase.
@@ -91,6 +89,12 @@ _zstd_level='ultra'
 # or
 # https://github.com/sirlucjan/lucjan-kernels/tree/master/depends
 _zstd_modules=y
+
+### Selecting the ZSTD compression level
+# ATTENTION - one of two predefined values should be selected!
+# 'ultra' - highest compression ratio
+# 'normal' - standard compression ratio
+_zstd_level='ultra'
 
 ### WireGuard: y=enable full built-in, n=disable entirely, empty=with no changes in config
 _wireguard=y
@@ -121,7 +125,7 @@ _pkgbase=linux-lucjan
 _major=5.11
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.15.ll84
+pkgver=5.11.16.ll85
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -171,7 +175,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll84'
+ _lucjanrev='ll85'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -257,7 +261,7 @@ prepare() {
 	fi
 
     ### Set GCC flags
-	if [ -n "$_gcc_haswell" ]; then
+	if [ -n "$_gcc_tune" ]; then
 		echo "Setting GCC flags for Intel Haswell CPU..."
 		scripts/config --disable CONFIG_GENERIC_CPU
 		scripts/config --enable CONFIG_MHASWELL
@@ -547,9 +551,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'ff2e4af27c99d42f14c697ad153d6359dc403c74be7d857a7bf2beb04ab74ec7a9cf12f9a283cf1870c4b6f7122433608708ab90824d6d9a4fbed8f4b025bfad'
+            'ea9726184d9d755722a7d45f31527d431a9489b267e34e926dd2a63e836e12353ca68510f617deb22314adb7d6fc81fce611df96cc6e0fd42341710db7b13261'
             'SKIP'
-            '2abbf3f3de0f42362d4f8094abe8c60436c11277aae8a1c09878d10c2e09559ac1270b93ea65aed201298da5d772f708c4c924d6af5aa2055ed66289c9976e7a')
+            '2a5d3ef4762a1caa9eec53e0b445f4d62b845ec5ecc546ec18dbc2f7805f995aa81514e84ab0b7b75e8c2d19057fc799aba8c43a5b83a429336a22cc036de68f')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
