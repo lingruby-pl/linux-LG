@@ -1,5 +1,5 @@
 # Maintainer: Jacek Bienias <sp7ezd at gmail.com>
-# Maintainer: Piotr Gorski <lucjan.lucjanov@gmail.com>
+# Base: Piotr Gorski <lucjan.lucjanov@gmail.com>
 # Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 # Contributor: Tobias Powalowski <tpowa@archlinux.org>
 # Contributor: Thomas Baechler <thomas@archlinux.org>
@@ -116,16 +116,16 @@ _ll_rev='stable'
 # 'actual' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='actual'
+_linux_lucjan='trunk'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
-_major=5.11
+_major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.11.16.ll86
+pkgver=5.12.ll4
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -175,7 +175,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll86'
+ _lucjanrev='ll4'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -183,7 +183,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll19'
+ _lucjanrev='ll4'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -192,7 +192,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll19'
+ _lucjanrev='ll4'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -551,9 +551,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '5e85367a3dbb3d33ca8185b50a37bbbbf1c5d020b49a6fd65a13af755b339cbc9e876f8ecdc65fa7358886ca3f31946d4026a6ee98b9e0e4e7f3276bfcd2f939'
+            '63bbe6d1e8cb257cea87bc8e878f05effe3100d7b1b71e98f7d48c849f1351e7643aa5e55df2bff12d91780e60d9cfd148c09434828bc3dfee3f6d259b48bb9b'
             'SKIP'
-            '2f874a311be31631454a74a0ccc5080e7935804ab309cbae130329aa0f578b4c2c0b85d8b97f1b216d7d8ee89966602ebf10d73933265891d17ded50b621dabf')
+            '1bbfeddf255ac3cb0ed4d128b798ecbd448ceba250a266c0eec08458adc7a239b0b00127a927033203a64b852e49aa0b55bcfca27f643329f76b85b9f79d43c4')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
