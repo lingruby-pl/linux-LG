@@ -78,6 +78,9 @@ _1k_HZ_ticks=y
 ### Enable multigenerational LRU
 _lru_enable=y
 
+### Enable TCP_CONG_BBR2
+_tcp_bbr2=y
+
 ### Selecting the ZSTD compression level
 # ATTENTION - one of two predefined values should be selected!
 # 'ultra' - highest compression ratio
@@ -125,7 +128,7 @@ _pkgbase=linux-lucjan
 _major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.0.ll9
+pkgver=5.12.0.ll10
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -175,7 +178,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll9'
+ _lucjanrev='ll10'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -183,7 +186,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll9'
+ _lucjanrev='ll10'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -192,7 +195,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll9'
+ _lucjanrev='ll10'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -317,6 +320,17 @@ prepare() {
 		scripts/config --set-val CONFIG_HZ 1000
 	fi
 
+    ### Enable TCP_CONG_BBR2
+	if [ -n "$_tcp_bbr2" ]; then
+		echo "Disabling TCP_CONG_CUBIC..."
+		scripts/config --module CONFIG_TCP_CONG_CUBIC
+		scripts/config --disable CONFIG_DEFAULT_CUBIC
+		echo "Enabling TCP_CONG_BBR2..."
+		scripts/config --enable CONFIG_TCP_CONG_BBR2
+		scripts/config --enable CONFIG_DEFAULT_BBR2
+		scripts/config --set-str CONFIG_DEFAULT_TCP_CONG bbr2
+	fi
+
     ### Enable multigenerational LRU
 	if [ -n "$_lru_enable" ]; then
 		echo "Enabling multigenerational LRU..."
@@ -328,7 +342,7 @@ prepare() {
 	fi
 
     ### Optionally disable NUMA for 64-bit kernels only
-        # (x86 kernels do not support NUMA)
+    # (x86 kernels do not support NUMA)
 	if [ -n "$_NUMAdisable" ]; then
 		echo "Disabling NUMA from kernel config..."
 		scripts/config --disable CONFIG_NUMA
@@ -353,49 +367,49 @@ prepare() {
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
 	fi
 
-  	### Disable DVB
-  	if [ -n "$_dvb" ]; then
-  		echo "Disable DVB..."
-  		scripts/config --disable CONFIG_DVB_CORE
-  	fi
+    ### Disable DVB
+	if [ -n "$_dvb" ]; then
+		echo "Disable DVB..."
+		scripts/config --disable CONFIG_DVB_CORE
+	fi
 
-  	### Disable TUNER
-  	if [ -n "$_media_tuner" ]; then
-  		echo "Disable TUNER..."
-  		scripts/config --disable CONFIG_MEDIA_TUNER
-  		scripts/config --disable CONFIG_MEDIA_TUNER_SIMPLE
-    fi
+    ### Disable TUNER
+	if [ -n "$_media_tuner" ]; then
+		echo "Disable TUNER..."
+		scripts/config --disable CONFIG_MEDIA_TUNER
+		scripts/config --disable CONFIG_MEDIA_TUNER_SIMPLE
+	fi
 
-  	msg "Disable DVB devices"
-  	for line in $( grep -i CONFIG_="DVB_" .config ); do
-  		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
-  		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
-  	done
+	msg "Disable DVB devices"
+	for line in $( grep -i CONFIG_="DVB_" .config ); do
+		msg2 "$(echo '$line' | grep 'DVB_' | awk -F'=' '{print $1}')"
+		scripts/config --disable $(echo "$line" | grep "DVB_" | awk -F'=' '{print $1}')
+	done
 
-  	msg "Disable MEDIA_TUNER devices"
-  		for line in $( grep -i CONFIG_="MEDIA_TUNER_" .config ); do
-  		msg2 "$(echo '$line' | grep 'MEDIA_TUNER_' | awk -F'=' '{print $1}')"
-  		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
-  	done
+	msg "Disable MEDIA_TUNER devices"
+		for line in $( grep -i CONFIG_="MEDIA_TUNER_" .config ); do
+		msg2 "$(echo '$line' | grep 'MEDIA_TUNER_' | awk -F'=' '{print $1}')"
+		scripts/config --disable $(echo "$line" | grep "MEDIA_TUNER_" | awk -F'=' '{print $1}')
+	done
 
-  	### Enable WireGuard
-  	if [ "$_wireguard" = y ]; then
-  		echo "Enabling WireGuard built-in..."
-  		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=y/' \
-  		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=y/' ./.config
-  		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=y/' \
-  		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=y/' ./.config
-  		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=y/' \
-  		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=y/' ./.config
-  	elif [ "$_wireguard" = n ]; then
-  		echo "Disabling WireGuard"
-  		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=n/' \
-  		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=n/' ./.config
-  		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=n/' \
-  		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=n/' ./.config
-  		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
-  		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
-  	fi
+    ### Enable WireGuard
+	if [ "$_wireguard" = y ]; then
+		echo "Enabling WireGuard built-in..."
+		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=y/' \
+		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=y/' ./.config
+		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=y/' \
+		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=y/' ./.config
+		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=y/' \
+		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=y/' ./.config
+	elif [ "$_wireguard" = n ]; then
+		echo "Disabling WireGuard"
+		sed -i -e 's/^# CONFIG_NET_UDP_TUNNEL.*/CONFIG_NET_UDP_TUNNEL=n/' \
+		-i -e 's/^CONFIG_NET_UDP_TUNNEL=.*/CONFIG_NET_UDP_TUNNEL=n/' ./.config
+		sed -i -e 's/^# CONFIG_WIREGUARD.*/CONFIG_WIREGUARD=n/' \
+		-i -e 's/^CONFIG_WIREGUARD=.*/CONFIG_WIREGUARD=n/' ./.config
+		sed -i -e 's/^# CONFIG_WIREGUARD_DEBUG.*/CONFIG_WIREGUARD_DEBUG=n/' \
+		-i -e 's/^CONFIG_WIREGUARD_DEBUG=.*/CONFIG_WIREGUARD_DEBUG=n/' ./.config
+	fi
 
     ### Optionally load needed modules for the make localmodconfig
     # See https://aur.archlinux.org/packages/modprobed-db
@@ -553,9 +567,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'd155411905aaf9f04b4056006a3179b230f13ad563d0d06c3ff6519bdb25527e6c9970cecd6edc33234ce8ccf1de397ca49fa27798e33c712a5a04d4e5524019'
+            '394850df8a756d79010599b2e30f0ee2f0f74775108e4bf1b1739ba37c6b4e93908f29b3463d86f1910126b2f0306f7e96b3144c4b42062ad7b0efd4dc274e59'
             'SKIP'
-            '5ced2fefa91d5ef1c3b3e10c30e3dbcb4282ca8b12aa895f4a2c0a47d7697d0325a67c5c6b18377b84bf19d61cb6b744c4dced5509c2fe44b2ed569c6459a424')
+            'd04a9deef4352a3d7ba25315ed8741072dee5c4c90a1961e73d7405024adf87e4b0b8f22d6adb13a9acbbc717bf1d57b5f22afaec3331e684edba24b8e66e08c')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
