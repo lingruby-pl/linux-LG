@@ -79,7 +79,7 @@ _1k_HZ_ticks=y
 _mm_protect=y
 
 ### Enable multigenerational LRU
-_lru_enable=y
+_lru_enable=
 
 ### Enable TCP_CONG_BBR2
 _tcp_bbr2=y
@@ -122,7 +122,7 @@ _ll_rev='stable'
 # 'actual' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='trunk'
+_linux_lucjan='actual'
 
 ### Do not edit below this line unless you know what you're doing
 
@@ -131,7 +131,7 @@ _pkgbase=linux-lucjan
 _major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.1.ll15
+pkgver=5.12.2.ll21
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -181,7 +181,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll15'
+ _lucjanrev='ll21'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -189,7 +189,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll15'
+ _lucjanrev='ll20'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -198,7 +198,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll15'
+ _lucjanrev='ll20'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -349,7 +349,7 @@ prepare() {
 		scripts/config --set-val CONFIG_NR_LRU_GENS 7
 		scripts/config --set-val CONFIG_TIERS_PER_GEN 4
 		scripts/config --enable CONFIG_LRU_GEN_ENABLED
-		scripts/config --enable CONFIG_LRU_GEN_STATS
+		scripts/config --disable CONFIG_LRU_GEN_STATS
 	fi
 
     ### Optionally disable NUMA for 64-bit kernels only
@@ -578,9 +578,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'dea509dd4e9f979f7a402c4144ad8e2f5206294a06c67322a4b583cf39bc5f844d4e4abcd12daa984ad16e7069d80c5fce201089add289431448893f0a4db16c'
+            '81c2c60c4cfdc8c43781ba7e4a19deaa883dc6ec6c0afb1c3dd751d49d37aace6e887aa9459f1f2289f6afa5ff0eb2a3b351ce3208203716c4ebd3169af98d70'
             'SKIP'
-            'ef973e2a292d7e5665449a190bc39c49a9040506e3b069d2599c3112daaa7a002f12ef040176a9972a8a38ceaae22c5edf0a942060cabbd17c11dcef3612f286')
+            '18a4610ac477df95412a1ce0550a0bf80451c8c3abe04a47311676de7dfa11e6e225ea45336ac54415f971bb46e0d53bdf0d6074c7e9cc32beb213f8a1cb4b2d')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
