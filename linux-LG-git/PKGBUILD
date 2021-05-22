@@ -131,7 +131,7 @@ _pkgbase=linux-lucjan
 _major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.4.ll28
+pkgver=5.12.6.ll41
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -181,7 +181,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll28'
+ _lucjanrev='ll41'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -578,9 +578,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '8600a92b5be9be35a2304dd905b03b26231ab30eb575c126e009547174cfc4221ec7f5f6465009769c9516d90495f40b14e2ac46f82cf14cb4c4753130a802e7'
+            'ab326d0c29aaa94bfec6252d55c8523c03d1fc74f290a44f1c6ef8404f80b03f5a21f5356df619dbc1839b118cebfe2365d048d619cf3cdd38821a48d9ed9e2a'
             'SKIP'
-            '3ee10b18b058249eeeb782b4b23e6fe56774187e16841bf256ddbe2f8efca100a74138fec1b62437129ce1a7dc249de14445db1e6cbb3dc4537e51fee4fa2287')
+            '9c893e49e6ce27ad78623f97a539bc9698713584ee70c08f19927ff53125d22a59fab059e673ce6a5f1f65356130bb7d5fb4355de8d868024bc2b110bd4d23ce')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
