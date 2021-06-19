@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 5.12.8.ll46 Kernel Configuration
+# Linux/x86 5.12.12.ll64 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (GCC) 11.1.0"
 CONFIG_CC_IS_GCC=y
@@ -9363,6 +9363,7 @@ CONFIG_F2FS_FS_LZ4=y
 CONFIG_F2FS_FS_LZ4HC=y
 CONFIG_F2FS_FS_ZSTD=y
 CONFIG_F2FS_FS_LZORLE=y
+# CONFIG_BCACHEFS_FS is not set
 CONFIG_ZONEFS_FS=m
 # CONFIG_SPADFS_FS is not set
 CONFIG_FS_DAX=y
@@ -9760,7 +9761,7 @@ CONFIG_LOCK_DOWN_KERNEL_FORCE_NONE=y
 # CONFIG_DEFAULT_SECURITY_TOMOYO is not set
 # CONFIG_DEFAULT_SECURITY_APPARMOR is not set
 CONFIG_DEFAULT_SECURITY_DAC=y
-CONFIG_LSM="lockdown,yama,bpf"
+CONFIG_LSM="lockdown,yama"
 
 #
 # Kernel hardening options
@@ -10365,6 +10366,7 @@ CONFIG_STACKTRACE=y
 # end of Debug kernel data structures
 
 # CONFIG_DEBUG_CREDENTIALS is not set
+# CONFIG_DEBUG_CLOSURES is not set
 
 #
 # RCU Debugging
