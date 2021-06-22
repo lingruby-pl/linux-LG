@@ -47,11 +47,11 @@ _use_current=
 # 'no' - disable linux-lucjan branding
 _ll_branding='yes'
 
-### Setting GCC Flags GCC flags for your processor
+### Setting GCC/Clang flags for your processor
 # To see which option to select, run the command:
 # gcc -c -Q -march=native --help=target | grep march
 # You can find the full list below:
-# https://github.com/graysky2/kernel_gcc_patch#expanded-cpus-include
+# https://github.com/graysky2/kernel_compiler_patch#expanded-cpus-include
 _compiler_tune=y
 
 ### Set performance governor as default
@@ -131,7 +131,7 @@ _pkgbase=linux-lucjan
 _major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.12.ll64
+pkgver=5.12.12.ll68
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -181,7 +181,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll64'
+ _lucjanrev='ll68'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -266,9 +266,9 @@ prepare() {
 		scripts/config --disable CONFIG_LL_BRANDING
 	fi
 
-    ### Set GCC flags
+    ### Set GCC/Clang flags
 	if [ -n "$_compiler_tune" ]; then
-		echo "Setting GCC flags for Intel Haswell CPU..."
+		echo "Setting GCC/Clang flags for Intel Haswell CPU..."
 		scripts/config --disable CONFIG_GENERIC_CPU
 		scripts/config --enable CONFIG_MHASWELL
 	fi
@@ -289,6 +289,7 @@ prepare() {
 	if [ -n "$_deadline_disable" ]; then
 		echo "Disabling Deadline I/O scheduler..."
 		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE
+		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE_CGROUP
 	fi
 
     ### Disable Kyber I/O scheduler
@@ -579,9 +580,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '42faaba1ed5969805f3197252d3a8506a860a0f04b367a6c4cd66ce51aac0914116323824cd55748af8996c6b358e62fb5692820e9016c29e835dee660e1414e'
+            'd9cb12d955d6bb400a244c4067a176ea75f2ab2f51057a8dc56cc9ac59081f95ace45094077eedc93b61ecdf8b8f62fbca7058939e5ed49d27688bf6ca97b379'
             'SKIP'
-            'ce3d321f013478707030473787269aaadf3180e61853bcaaa046b13fb36ec786109dda29326284b93bca627584a35c28a624e6304ad1a89810b0bdc40c2e69c1')
+            '84d653880a740a6e2b2e380e23b9428ab286ab5fb086e5148af35bccd1931ce9dfb9b5c977568cc7cdecef425b63a018b23a2c03a80e74f4fda434888de5611d')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
