@@ -57,8 +57,8 @@ _compiler_tune=y
 ### Set performance governor as default
 _per_gov=y
 
-### Disable Deadline I/O scheduler
-_deadline_disable=y
+### Disable MQ-Deadline I/O scheduler with cgroup support
+_mq_deadline_disable=
 
 ### Disable Kyber I/O scheduler
 _kyber_disable=y
@@ -102,6 +102,19 @@ _zstd_level='ultra'
 # https://github.com/sirlucjan/lucjan-kernels/tree/master/depends
 _zstd_modules=y
 
+### Enable MODULE_COMPRESS_ZSTD_ULTRA
+# WARNING Not recommended.
+# An experimental solution, still in testing phase.
+# Possible compilation and installation errors.
+# Leave it unselected.
+# However, if you want to test the new solution,
+# first enable "_zstd_modules" (above flag).
+# ATTENTION Without selecting the previous flag
+# this one will not work!
+# Remember: the ultra settings can sometimes
+# be counterproductive in both size and speed.
+_zstd_modules_ultra=y
+
 ### WireGuard: y=enable full built-in, n=disable entirely, empty=with no changes in config
 _wireguard=y
 
@@ -131,7 +144,7 @@ _pkgbase=linux-lucjan
 _major=5.12
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.12.ll68
+pkgver=5.12.14.ll75
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -181,7 +194,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll68'
+ _lucjanrev='ll75'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -285,9 +298,9 @@ prepare() {
 		scripts/config --disable CONFIG_CPU_FREQ_GOV_SCHEDUTIL
 	fi
 
-    ### Disable Deadline I/O scheduler
-	if [ -n "$_deadline_disable" ]; then
-		echo "Disabling Deadline I/O scheduler..."
+    ### Disable MQ-Deadline I/O scheduler with cgroup support
+	if [ -n "$_mq_deadline_disable" ]; then
+		echo "Disabling MQ-Deadline I/O scheduler with cgroup support..."
 		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE
 		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE_CGROUP
 	fi
@@ -378,6 +391,13 @@ prepare() {
 		scripts/config --disable CONFIG_MODULE_COMPRESS_XZ
 		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
+	fi
+
+    ### Enable MODULE_COMPRESS_ZSTD_ULTRA
+	if [ -n "$_zstd_modules" ] && [ -n "$_zstd_modules_ultra" ]; then
+		echo "Enabling ZSTD module ultra compression..."
+		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
+		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL_ULTRA 22
 	fi
 
     ### Disable DVB
@@ -525,7 +545,7 @@ _package-headers() {
   install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
   install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
 
-  # http://bugs.archlinux.org/task/13146
+  # https://bugs.archlinux.org/task/13146
   install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
 
   echo "Installing KConfig files..."
@@ -580,9 +600,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'd9cb12d955d6bb400a244c4067a176ea75f2ab2f51057a8dc56cc9ac59081f95ace45094077eedc93b61ecdf8b8f62fbca7058939e5ed49d27688bf6ca97b379'
+            '77a3a4948199d3eeee190042727c1db4721a00a8aaad62f809728c73c0dff1cc041d5b134bb5011b4fa06164f412d0c7a74a7d2673de9bdd982b124949ea89de'
             'SKIP'
-            '84d653880a740a6e2b2e380e23b9428ab286ab5fb086e5148af35bccd1931ce9dfb9b5c977568cc7cdecef425b63a018b23a2c03a80e74f4fda434888de5611d')
+            '1c1682a7f92ecc0ad4c9bcf0c1670b8319396f624f9e56620281a02a4f8476b429112cad92196838bcb85ad81be8242d32ca153bd022e47c9e4b3f347cd3c468')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
