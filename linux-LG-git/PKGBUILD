@@ -76,7 +76,10 @@ _cc_harder=y
 _1k_HZ_ticks=y
 
 ### Enable protect file mappings under memory pressure
-_mm_protect=y
+_mm_file=y
+
+### Enable protect anonymous mappings under memory pressure
+_mm_anon=y
 
 ### Enable multigenerational LRU
 _lru_enable=
@@ -84,34 +87,33 @@ _lru_enable=
 ### Enable TCP_CONG_BBR2
 _tcp_bbr2=y
 
+### Enable SECURITY_FORK_BRUTE
+# WARNING Not recommended.
+# An experimental solution, still in testing phase.
+# Possible compilation and installation errors.
+# Leave it unselected.
+_fork_brute=
+
 ### Selecting the ZSTD compression level
 # ATTENTION - one of two predefined values should be selected!
 # 'ultra' - highest compression ratio
 # 'normal' - standard compression ratio
 _zstd_level='ultra'
 
-### Enable MODULE_COMPRESS_ZSTD
-# WARNING Not recommended.
-# An experimental solution, still in testing phase.
-# Possible compilation and installation errors.
-# Leave it unselected.
-# However, if you want to test the new solution,
+### Enable MODULE_COMPRESS_ZSTD_LEVEL
+# If you want to use ZSTD compression,
 # first install mkinitcpio-zstd:
 # https://gitlab.com/sirlucjan/lucjan-kernels/tree/master/depends
 # or
 # https://github.com/sirlucjan/lucjan-kernels/tree/master/depends
-_zstd_modules=y
+_zstd_modules_standard=y
 
-### Enable MODULE_COMPRESS_ZSTD_ULTRA
+### Enable MODULE_COMPRESS_ZSTD_LEVEL_ULTRA
 # WARNING Not recommended.
 # An experimental solution, still in testing phase.
 # Possible compilation and installation errors.
 # Leave it unselected.
-# However, if you want to test the new solution,
-# first enable "_zstd_modules" (above flag).
-# ATTENTION Without selecting the previous flag
-# this one will not work!
-# Remember: the ultra settings can sometimes
+# ATTENTION: the ultra settings can sometimes
 # be counterproductive in both size and speed.
 _zstd_modules_ultra=y
 
@@ -135,16 +137,16 @@ _ll_rev='stable'
 # 'actual' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='actual'
+_linux_lucjan='trunk'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
-_major=5.12
+_major=5.13
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.12.14.ll75
+pkgver=5.13.1.ll19
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -194,7 +196,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll75'
+ _lucjanrev='ll19'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -202,7 +204,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll20'
+ _lucjanrev='ll19'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -211,7 +213,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll20'
+ _lucjanrev='ll19'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -348,12 +350,27 @@ prepare() {
 		scripts/config --set-str CONFIG_DEFAULT_TCP_CONG bbr2
 	fi
 
+    ### Enable SECURITY_FORK_BRUTE
+	if [ -n "$_fork_brute" ]; then
+		echo "Enabling SECURITY_FORK_BRUTE..."
+		scripts/config --enable CONFIG_SECURITY_FORK_BRUTE
+		scripts/config --set-str CONFIG_LSM lockdown,yama,brute
+	fi
+
     ### Enable protect file mappings under memory pressure
-	if [ -n "$_mm_protect" ]; then
+	if [ -n "$_mm_file" ]; then
 		echo "Enabling protect file mappings under memory pressure..."
 		scripts/config --enable CONFIG_UNEVICTABLE_FILE
 		scripts/config --set-val CONFIG_UNEVICTABLE_FILE_KBYTES_LOW 262144
 		scripts/config --set-val CONFIG_UNEVICTABLE_FILE_KBYTES_MIN 131072
+	fi
+
+	### Enable protect anonymous mappings under memory pressure
+	if [ -n "$_mm_anon" ]; then
+		echo "Enabling protect anonymous mappings under memory pressure..."
+		scripts/config --enable CONFIG_UNEVICTABLE_ANON
+		scripts/config --set-val CONFIG_UNEVICTABLE_ANON_KBYTES_LOW 65536
+		scripts/config --set-val CONFIG_UNEVICTABLE_ANON_KBYTES_MIN 32768
 	fi
 
     ### Enable multigenerational LRU
@@ -385,17 +402,15 @@ prepare() {
 		scripts/config --disable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
 	fi
 
-    ### Enable MODULE_COMPRESS_ZSTD
-	if [ -n "$_zstd_modules" ]; then
-		echo "Enabling ZSTD module compression..."
-		scripts/config --disable CONFIG_MODULE_COMPRESS_XZ
-		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD
+    ### Enable MODULE_COMPRESS_ZSTD_LEVEL
+	if [ -n "$_zstd_modules_standard" ]; then
+		echo "Enabling ZSTD module compression level..."
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
 	fi
 
-    ### Enable MODULE_COMPRESS_ZSTD_ULTRA
-	if [ -n "$_zstd_modules" ] && [ -n "$_zstd_modules_ultra" ]; then
-		echo "Enabling ZSTD module ultra compression..."
+    ### Enable MODULE_COMPRESS_ZSTD_LEVEL_ULTRA
+	if [ -n "$_zstd_modules_ultra" ]; then
+		echo "Enabling ZSTD module ultra compression level..."
 		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL_ULTRA 22
 	fi
@@ -600,9 +615,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '77a3a4948199d3eeee190042727c1db4721a00a8aaad62f809728c73c0dff1cc041d5b134bb5011b4fa06164f412d0c7a74a7d2673de9bdd982b124949ea89de'
+            '9e7b07314d3af8e853b5b5de56e514705ac08937dbb646a3d49be00fd32d1df351bf49e6ccf64ed105d94649fadb8cb3583bed24895ee9831338f82fbedfed01'
             'SKIP'
-            '1c1682a7f92ecc0ad4c9bcf0c1670b8319396f624f9e56620281a02a4f8476b429112cad92196838bcb85ad81be8242d32ca153bd022e47c9e4b3f347cd3c468')
+            'e6f76861fbeb49887d593a9c696ee3f004a3c70ada959d9da36490ccb7f7f460b368cee34fa2245193ddb8cd170f6b9d19411428319727dbbb196580614b0f08')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
