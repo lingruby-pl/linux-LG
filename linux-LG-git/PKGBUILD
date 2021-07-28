@@ -1,4 +1,4 @@
-# Maintainer: Jacek Bienias <sp7ezd at gmail.com>
+# Maintainer: Jacek Bienias <sp7ezd at ymail.com>
 # Base: Piotr Gorski <lucjan.lucjanov@gmail.com>
 # Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 # Contributor: Tobias Powalowski <tpowa@archlinux.org>
@@ -84,6 +84,9 @@ _mm_anon=y
 ### Enable multigenerational LRU
 _lru_enable=
 
+### Enable Linux Random Number Generator 
+_lrng_enable=
+
 ### Enable TCP_CONG_BBR2
 _tcp_bbr2=y
 
@@ -100,22 +103,18 @@ _fork_brute=
 # 'normal' - standard compression ratio
 _zstd_level='ultra'
 
-### Enable MODULE_COMPRESS_ZSTD_LEVEL
+### Selecting the ZSTD module compression level
 # If you want to use ZSTD compression,
 # first install mkinitcpio-zstd:
 # https://gitlab.com/sirlucjan/lucjan-kernels/tree/master/depends
 # or
 # https://github.com/sirlucjan/lucjan-kernels/tree/master/depends
-_zstd_modules_standard=y
-
-### Enable MODULE_COMPRESS_ZSTD_LEVEL_ULTRA
-# WARNING Not recommended.
-# An experimental solution, still in testing phase.
-# Possible compilation and installation errors.
-# Leave it unselected.
-# ATTENTION: the ultra settings can sometimes
+# ATTENTION - one of two predefined values should be selected!
+# 'ultra' - highest compression ratio
+# 'normal' - standard compression ratio
+# WARNING: the ultra settings can sometimes
 # be counterproductive in both size and speed.
-_zstd_modules_ultra=y
+_zstd_module_level='ultra'
 
 ### WireGuard: y=enable full built-in, n=disable entirely, empty=with no changes in config
 _wireguard=y
@@ -137,7 +136,7 @@ _ll_rev='stable'
 # 'actual' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='trunk'
+_linux_lucjan='actual'
 
 ### Do not edit below this line unless you know what you're doing
 
@@ -146,7 +145,7 @@ _pkgbase=linux-lucjan
 _major=5.13
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.13.1.ll19
+pkgver=5.13.5.ll47
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -154,9 +153,6 @@ url="https://github.com/lingruby-pl/linux-LG/blob/master/README.md"
 license=(GPL2)
 options=('!strip')
 makedepends=('kmod' 'bc' 'libelf' 'git' 'imagemagick')
-if [ -n "$_zstd_modules" ]; then
-    depends+=('initramfs-zstd')
-fi
 
 ### LL reverts
 # Some patches for BFQ/block-stable conflict with
@@ -196,7 +192,7 @@ if [ "$_linux_lucjan" = "actual" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
  _lucjanname='lucjan'
- _lucjanrev='ll19'
+ _lucjanrev='ll47'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -354,7 +350,7 @@ prepare() {
 	if [ -n "$_fork_brute" ]; then
 		echo "Enabling SECURITY_FORK_BRUTE..."
 		scripts/config --enable CONFIG_SECURITY_FORK_BRUTE
-		scripts/config --set-str CONFIG_LSM lockdown,yama,brute
+		scripts/config --set-str CONFIG_LSM landlock,lockdown,brute,yama,bpf
 	fi
 
     ### Enable protect file mappings under memory pressure
@@ -384,6 +380,37 @@ prepare() {
 		scripts/config --disable CONFIG_LRU_GEN_STATS
 	fi
 
+    ### Enable Linux Random Number Generator 
+	if [ -n "$_lrng_enable" ]; then
+		echo "Enabling Linux Random Number Generator ..."
+		scripts/config --enable CONFIG_LRNG
+		scripts/config --disable CONFIG_LRNG_OVERSAMPLE_ENTROPY_SOURCES
+		scripts/config --set-val CONFIG_CONFIG_LRNG_OVERSAMPLE_ES_BITS 0
+		scripts/config --set-val CONFIG_LRNG_SEED_BUFFER_INIT_ADD_BITS 0
+		scripts/config --enable CONFIG_LRNG_CONTINUOUS_COMPRESSION_ENABLED
+		scripts/config --disable CONFIG_LRNG_CONTINUOUS_COMPRESSION_DISABLED
+		scripts/config --disable CONFIG_LRNG_SWITCHABLE_CONTINUOUS_COMPRESSION
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_32
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_256
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_512
+		scripts/config --enable CONFIG_LRNG_COLLECTION_SIZE_1024
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_2048
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_4096
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_8192
+		scripts/config --set-val CONFIG_LRNG_COLLECTION_SIZE 1024
+		scripts/config --disable CONFIG_LRNG_HEALTH_TESTS
+		scripts/config --set-val CONFIG_LRNG_RCT_CUTOFF 31
+		scripts/config --set-val CONFIG_LRNG_APT_CUTOFF 325
+		scripts/config --set-val CONFIG_LRNG_IRQ_ENTROPY_RATE 256
+		scripts/config --enable CONFIG_LRNG_JENT
+		scripts/config --set-val CONFIG_LRNG_JENT_ENTROPY_RATE 16
+		scripts/config --set-val CONFIG_LRNG_CPU_ENTROPY_RATE 8
+		scripts/config --disable CONFIG_LRNG_DRNG_SWITCH
+		scripts/config --disable CONFIG_LRNG_DRBG
+		scripts/config --disable CONFIG_LRNG_TESTING_MENU
+		scripts/config --disable CONFIG_LRNG_SELFTEST
+	fi
+
     ### Optionally disable NUMA for 64-bit kernels only
     # (x86 kernels do not support NUMA)
 	if [ -n "$_NUMAdisable" ]; then
@@ -402,17 +429,16 @@ prepare() {
 		scripts/config --disable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
 	fi
 
-    ### Enable MODULE_COMPRESS_ZSTD_LEVEL
-	if [ -n "$_zstd_modules_standard" ]; then
-		echo "Enabling ZSTD module compression level..."
+    ### Selecting the ZSTD module compression level
+	if [ "$_zstd_module_level" = "ultra" ]; then
+		echo "Enabling highest ZSTD module compression ratio..."
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
-	fi
-
-    ### Enable MODULE_COMPRESS_ZSTD_LEVEL_ULTRA
-	if [ -n "$_zstd_modules_ultra" ]; then
-		echo "Enabling ZSTD module ultra compression level..."
 		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL_ULTRA 22
+	elif [ "$_zstd_module_level" = "normal" ]; then
+		echo "Enabling standard ZSTD module compression ratio..."
+		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
+		scripts/config --disable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
 	fi
 
     ### Disable DVB
@@ -615,9 +641,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '9e7b07314d3af8e853b5b5de56e514705ac08937dbb646a3d49be00fd32d1df351bf49e6ccf64ed105d94649fadb8cb3583bed24895ee9831338f82fbedfed01'
+            'e184e7653d37201a7dae782e3ea609fc5e64009eb15a9799f32e2baacff2e4e4be921ae306cbc3b331482ad16ea6087be14e8754fb0db6c3dafb713a63d4dc72'
             'SKIP'
-            'e6f76861fbeb49887d593a9c696ee3f004a3c70ada959d9da36490ccb7f7f460b368cee34fa2245193ddb8cd170f6b9d19411428319727dbbb196580614b0f08')
+            '126a2005476f421a506e4295d308a33fff1ab6fc240535972f187132ff789f4274b93cbede8a60702407add438818813103c142943cc97515852fda3eff04780')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
