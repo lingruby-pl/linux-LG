@@ -64,9 +64,10 @@ _mq_deadline_disable=
 _kyber_disable=y
 
 ### Selecting the CPU scheduler
-# ATTENTION - one of two predefined values should be selected!
+# ATTENTION - one of three predefined values should be selected!
 # 'bmq' - select 'BitMap Queue CPU scheduler'
 # 'pds' - select 'Priority and Deadline based Skip list multiple queue CPU scheduler'
+# 'none' - select 'Completely Fair Scheduler'
 _projectc='pds'
 
 ### Enable KBUILD_CFLAGS -O3
@@ -89,6 +90,9 @@ _lrng_enable=
 
 ### Enable TCP_CONG_BBR2
 _tcp_bbr2=y
+
+### Enable FULLCONENAT
+_nf_cone=y
 
 ### Enable SECURITY_FORK_BRUTE
 # WARNING Not recommended.
@@ -133,10 +137,10 @@ _ll_rev='stable'
 
 ### Download linux-lucjan patchset
 # ATTENTION - one of four predefined values should be selected!
-# 'actual' - stable releases (recommended)
+# 'current' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='actual'
+_linux_lucjan='current'
 
 ### Do not edit below this line unless you know what you're doing
 
@@ -145,7 +149,7 @@ _pkgbase=linux-lucjan
 _major=5.13
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.13.5.ll47
+pkgver=5.13.8.ll59
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -182,17 +186,17 @@ fi
 
 ### linux-lucjan
 # If you do not use the kernel development version (stable-rc)
-# only the actual branch will be used. Pending and testing branches
+# only the current branch will be used. Pending and testing branches
 # are used only in development versions (stable-rc)
 # and the trunk branch is used only in the first releases
 # of the new kernel line or contains only temporary solutions.
 
-if [ "$_linux_lucjan" = "actual" ]; then
+if [ "$_linux_lucjan" = "current" ]; then
 
- _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/actual"
-#_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/actual"
+ _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
+#_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll47'
+ _lucjanrev='ll59'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -275,6 +279,15 @@ prepare() {
 	elif [ "$_ll_branding" = "no" ]; then
 		echo "Disabling linux-lucjan branding..."
 		scripts/config --disable CONFIG_LL_BRANDING
+	else
+		if [ -n "$_ll_branding" ]; then
+			error "The value $_ll_branding is invalid. Choose the correct one again."
+			error "Selecting linux-lucjan branding failed!"
+		else
+			error "The value is empty. Choose the correct one again."
+			error "Selecting linux-lucjan branding failed!"
+		fi
+		exit
 	fi
 
     ### Set GCC/Clang flags
@@ -300,7 +313,6 @@ prepare() {
 	if [ -n "$_mq_deadline_disable" ]; then
 		echo "Disabling MQ-Deadline I/O scheduler with cgroup support..."
 		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE
-		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE_CGROUP
 	fi
 
     ### Disable Kyber I/O scheduler
@@ -318,6 +330,18 @@ prepare() {
 		echo "Selecting PDS CPU scheduler..."
 		scripts/config --disable CONFIG_SCHED_BMQ
 		scripts/config --enable CONFIG_SCHED_PDS
+	elif [ "$_projectc" = "none" ]; then
+		echo "Selecting Completely Fair Scheduler..."
+		scripts/config --disable CONFIG_SCHED_ALT
+	else
+		if [ -n "$_projectc" ]; then
+			error "The value $_projectc is invalid. Choose the correct one again."
+			error "Selecting the CPU scheduler failed!"
+		else
+			error "The value is empty. Choose the correct one again."
+			error "Selecting the CPU scheduler failed!"
+		fi
+		exit
 	fi
 
     ### Enable KBUILD_CFLAGS -O3
@@ -344,6 +368,13 @@ prepare() {
 		scripts/config --enable CONFIG_TCP_CONG_BBR2
 		scripts/config --enable CONFIG_DEFAULT_BBR2
 		scripts/config --set-str CONFIG_DEFAULT_TCP_CONG bbr2
+	fi
+
+    ### Enable FULLCONENAT
+	if [ -n "$_nf_cone" ]; then
+		echo "Enabling FULLCONENAT..."
+		scripts/config --module CONFIG_IP_NF_TARGET_FULLCONENAT
+		scripts/config --module CONFIG_NETFILTER_XT_TARGET_FULLCONENAT
 	fi
 
     ### Enable SECURITY_FORK_BRUTE
@@ -427,6 +458,15 @@ prepare() {
 		echo "Enabling standard ZSTD compression ratio..."
 		scripts/config --set-val CONFIG_KERNEL_ZSTD_LEVEL 19
 		scripts/config --disable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
+	else
+		if [ -n "$_zstd_level" ]; then
+			error "The value $_zstd_level is invalid. Choose the correct one again."
+			error "Selecting the ZSTD compression level failed!"
+		else
+			error "The value is empty. Choose the correct one again."
+			error "Selecting the ZSTD compression level failed!"
+		fi
+		exit
 	fi
 
     ### Selecting the ZSTD module compression level
@@ -439,6 +479,15 @@ prepare() {
 		echo "Enabling standard ZSTD module compression ratio..."
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
 		scripts/config --disable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
+	else
+		if [ -n "$_zstd_module_level" ]; then
+			error "The value $_zstd_module_level is invalid. Choose the correct one again."
+			error "Selecting the ZSTD module compression level failed!"
+		else
+			error "The value is empty. Choose the correct one again."
+			error "Selecting the ZSTD module compression level failed!"
+		fi
+		exit
 	fi
 
     ### Disable DVB
@@ -641,9 +690,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'e184e7653d37201a7dae782e3ea609fc5e64009eb15a9799f32e2baacff2e4e4be921ae306cbc3b331482ad16ea6087be14e8754fb0db6c3dafb713a63d4dc72'
+            'c1ff87b1929204b60755d730848d7bb657cdb65e9e85083cbbe247aaf0229f8145574ae092a123ceac44dc3588b4acb3a6efae102fd46b764fc1e8bffa0da079'
             'SKIP'
-            '126a2005476f421a506e4295d308a33fff1ab6fc240535972f187132ff789f4274b93cbede8a60702407add438818813103c142943cc97515852fda3eff04780')
+            'bd7575a3fec066f236f110365f11d09e1de30e9e663f8c24973597fc935fb0726aa14c2cf3399a06e02ab860bd68b14543188f89e00222d0672f64c0c1a7ada1')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
