@@ -57,18 +57,19 @@ _compiler_tune=y
 ### Set performance governor as default
 _per_gov=y
 
-### Disable MQ-Deadline I/O scheduler with cgroup support
-_mq_deadline_disable=
+### Disable MQ-Deadline I/O scheduler
+_mq_deadline_disable=y
 
 ### Disable Kyber I/O scheduler
 _kyber_disable=y
 
 ### Selecting the CPU scheduler
-# ATTENTION - one of three predefined values should be selected!
+# ATTENTION - one of four predefined values should be selected!
 # 'bmq' - select 'BitMap Queue CPU scheduler'
 # 'pds' - select 'Priority and Deadline based Skip list multiple queue CPU scheduler'
+# 'cacule' - select 'CacULE scheduler'
 # 'none' - select 'Completely Fair Scheduler'
-_projectc='pds'
+_cpusched='pds'
 
 ### Enable KBUILD_CFLAGS -O3
 _cc_harder=y
@@ -76,14 +77,15 @@ _cc_harder=y
 ### Running with a 1000 HZ tick rate
 _1k_HZ_ticks=y
 
-### Enable protect file mappings under memory pressure
-_mm_file=y
-
-### Enable protect anonymous mappings under memory pressure
-_mm_anon=y
+### Enable protect mappings under memory pressure
+_mm_protect=y
 
 ### Enable multigenerational LRU
-_lru_enable=
+# ATTENTION - one of three predefined values should be selected!
+# 'zen' - enable multigenerational LRU with zenkernel config
+# 'xanmod' - enable multigenerational LRU with xanmod config
+# 'none' - disable multigenerational LRU
+_lru_config='none'
 
 ### Enable Linux Random Number Generator 
 _lrng_enable=
@@ -146,10 +148,10 @@ _linux_lucjan='current'
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
-_major=5.13
+_major=5.14
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.13.8.ll59
+pkgver=5.14.4.ll39
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -196,7 +198,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll59'
+ _lucjanrev='ll39'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -204,7 +206,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll19'
+ _lucjanrev='ll39'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -213,7 +215,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll19'
+ _lucjanrev='ll36'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -282,11 +284,10 @@ prepare() {
 	else
 		if [ -n "$_ll_branding" ]; then
 			error "The value $_ll_branding is invalid. Choose the correct one again."
-			error "Selecting linux-lucjan branding failed!"
 		else
 			error "The value is empty. Choose the correct one again."
-			error "Selecting linux-lucjan branding failed!"
 		fi
+		error "Selecting linux-lucjan branding failed!"
 		exit
 	fi
 
@@ -309,9 +310,9 @@ prepare() {
 		scripts/config --disable CONFIG_CPU_FREQ_GOV_SCHEDUTIL
 	fi
 
-    ### Disable MQ-Deadline I/O scheduler with cgroup support
+    ### Disable MQ-Deadline I/O scheduler
 	if [ -n "$_mq_deadline_disable" ]; then
-		echo "Disabling MQ-Deadline I/O scheduler with cgroup support..."
+		echo "Disabling MQ-Deadline I/O scheduler..."
 		scripts/config --disable CONFIG_MQ_IOSCHED_DEADLINE
 	fi
 
@@ -322,25 +323,30 @@ prepare() {
 	fi
 
     ### Selecting the CPU scheduler
-	if [ "$_projectc" = "bmq" ]; then
+	if [ "$_cpusched" = "bmq" ]; then
 		echo "Selecting BMQ CPU scheduler..."
 		scripts/config --enable CONFIG_SCHED_BMQ
 		scripts/config --disable CONFIG_SCHED_PDS
-	elif [ "$_projectc" = "pds" ]; then
+	elif [ "$_cpusched" = "pds" ]; then
 		echo "Selecting PDS CPU scheduler..."
 		scripts/config --disable CONFIG_SCHED_BMQ
 		scripts/config --enable CONFIG_SCHED_PDS
-	elif [ "$_projectc" = "none" ]; then
+	elif [ "$_cpusched" = "cacule" ]; then
+		echo "Selecting CacULE scheduler..."
+		scripts/config --disable CONFIG_SCHED_ALT
+		scripts/config --enable CONFIG_CACULE_SCHED
+		scripts/config --enable CONFIG_CACULE_RDB
+		scripts/config --set-val CONFIG_RDB_INTERVAL 19
+	elif [ "$_cpusched" = "none" ]; then
 		echo "Selecting Completely Fair Scheduler..."
 		scripts/config --disable CONFIG_SCHED_ALT
 	else
-		if [ -n "$_projectc" ]; then
-			error "The value $_projectc is invalid. Choose the correct one again."
-			error "Selecting the CPU scheduler failed!"
+		if [ -n "$_cpusched" ]; then
+			error "The value $_cpusched is invalid. Choose the correct one again."
 		else
 			error "The value is empty. Choose the correct one again."
-			error "Selecting the CPU scheduler failed!"
 		fi
+		error "Selecting the CPU scheduler failed!"
 		exit
 	fi
 
@@ -384,16 +390,12 @@ prepare() {
 		scripts/config --set-str CONFIG_LSM landlock,lockdown,brute,yama,bpf
 	fi
 
-    ### Enable protect file mappings under memory pressure
-	if [ -n "$_mm_file" ]; then
+    ### Enable protect mappings under memory pressure
+	if [ -n "$_mm_protect" ]; then
 		echo "Enabling protect file mappings under memory pressure..."
 		scripts/config --enable CONFIG_UNEVICTABLE_FILE
 		scripts/config --set-val CONFIG_UNEVICTABLE_FILE_KBYTES_LOW 262144
 		scripts/config --set-val CONFIG_UNEVICTABLE_FILE_KBYTES_MIN 131072
-	fi
-
-	### Enable protect anonymous mappings under memory pressure
-	if [ -n "$_mm_anon" ]; then
 		echo "Enabling protect anonymous mappings under memory pressure..."
 		scripts/config --enable CONFIG_UNEVICTABLE_ANON
 		scripts/config --set-val CONFIG_UNEVICTABLE_ANON_KBYTES_LOW 65536
@@ -401,14 +403,33 @@ prepare() {
 	fi
 
     ### Enable multigenerational LRU
-	if [ -n "$_lru_enable" ]; then
-		echo "Enabling multigenerational LRU..."
-		scripts/config --enable CONFIG_HAVE_ARCH_PARENT_PMD_YOUNG
+	if [ "$_lru_config" = "zen" ]; then
+		echo "Enabling multigenerational LRU with zenkernel config..."
+		scripts/config --enable CONFIG_ARCH_HAS_NONLEAF_PMD_YOUNG
 		scripts/config --enable CONFIG_LRU_GEN
 		scripts/config --set-val CONFIG_NR_LRU_GENS 7
 		scripts/config --set-val CONFIG_TIERS_PER_GEN 4
 		scripts/config --enable CONFIG_LRU_GEN_ENABLED
 		scripts/config --disable CONFIG_LRU_GEN_STATS
+	elif [ "$_lru_config" = "xanmod" ]; then
+		echo "Enabling multigenerational LRU with xanmod config..."
+		scripts/config --enable CONFIG_ARCH_HAS_NONLEAF_PMD_YOUNG
+		scripts/config --enable CONFIG_LRU_GEN
+		scripts/config --set-val CONFIG_NR_LRU_GENS 4
+		scripts/config --set-val CONFIG_TIERS_PER_GEN 2
+		scripts/config --disable CONFIG_LRU_GEN_ENABLED
+		scripts/config --disable CONFIG_LRU_GEN_STATS
+	elif [ "$_lru_config" = "none" ]; then
+		echo "Disabling multigenerational LRU..."
+		scripts/config --disable CONFIG_LRU_GEN
+	else
+		if [ -n "$_lru_config" ]; then
+			error "The value $_lru_config is invalid. Choose the correct one again."
+		else
+			error "The value is empty. Choose the correct one again."
+		fi
+		error "Enabling multigenerational LRU failed!"
+		exit
 	fi
 
     ### Enable Linux Random Number Generator 
@@ -420,6 +441,7 @@ prepare() {
 		scripts/config --set-val CONFIG_LRNG_SEED_BUFFER_INIT_ADD_BITS 0
 		scripts/config --enable CONFIG_LRNG_CONTINUOUS_COMPRESSION_ENABLED
 		scripts/config --disable CONFIG_LRNG_CONTINUOUS_COMPRESSION_DISABLED
+		scripts/config --enable CONFIG_LRNG_ENABLE_CONTINUOUS_COMPRESSION
 		scripts/config --disable CONFIG_LRNG_SWITCHABLE_CONTINUOUS_COMPRESSION
 		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_32
 		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_256
@@ -461,11 +483,10 @@ prepare() {
 	else
 		if [ -n "$_zstd_level" ]; then
 			error "The value $_zstd_level is invalid. Choose the correct one again."
-			error "Selecting the ZSTD compression level failed!"
 		else
 			error "The value is empty. Choose the correct one again."
-			error "Selecting the ZSTD compression level failed!"
 		fi
+		error "Selecting the ZSTD compression level failed!"
 		exit
 	fi
 
@@ -482,11 +503,10 @@ prepare() {
 	else
 		if [ -n "$_zstd_module_level" ]; then
 			error "The value $_zstd_module_level is invalid. Choose the correct one again."
-			error "Selecting the ZSTD module compression level failed!"
 		else
 			error "The value is empty. Choose the correct one again."
-			error "Selecting the ZSTD module compression level failed!"
 		fi
+		error "Selecting the ZSTD module compression level failed!"
 		exit
 	fi
 
@@ -690,9 +710,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'c1ff87b1929204b60755d730848d7bb657cdb65e9e85083cbbe247aaf0229f8145574ae092a123ceac44dc3588b4acb3a6efae102fd46b764fc1e8bffa0da079'
+            'bdaa7f460edc9366bf7837a844f73cf1dae8bc8780e9b5ebe250e1a7bb9dcf745ee1a448f1d62b604b19be724f9ab5dc835713df6c4edc0889ec2a832d13c307'
             'SKIP'
-            'bd7575a3fec066f236f110365f11d09e1de30e9e663f8c24973597fc935fb0726aa14c2cf3399a06e02ab860bd68b14543188f89e00222d0672f64c0c1a7ada1')
+            '1e518b660a285ca17caa12bd46c11e055d92f5ae8fa53a87ce58efcc8d059f5a87748b0f2602a5ca1fcfd633a60420a2c876622a6231474016c299e09754547a')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
