@@ -87,14 +87,22 @@ _mm_protect=y
 # 'none' - disable multigenerational LRU
 _lru_config='none'
 
-### Enable Linux Random Number Generator 
-_lrng_enable=
+### Enable Linux Random Number Generator
+# ATTENTION - one of three predefined values should be selected!
+# 'pfkernel' - enable Linux Random Number Generator with pfkernel config
+# 'xanmod' - enable Linux Random Number Generator with xanmod config
+# 'none' - disable Linux Random Number Generator
+_lrng_config='none'
 
 ### Enable TCP_CONG_BBR2
 _tcp_bbr2=y
 
 ### Enable FULLCONENAT
-_nf_cone=y
+# WARNING Not recommended.
+# An experimental solution, still in testing phase.
+# Possible compilation and installation errors.
+# Leave it unselected.
+_nf_cone=
 
 ### Enable SECURITY_FORK_BRUTE
 # WARNING Not recommended.
@@ -102,6 +110,9 @@ _nf_cone=y
 # Possible compilation and installation errors.
 # Leave it unselected.
 _fork_brute=
+
+### Enable DAMON
+_pf_damon=
 
 ### Selecting the ZSTD compression level
 # ATTENTION - one of two predefined values should be selected!
@@ -142,16 +153,16 @@ _ll_rev='stable'
 # 'current' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='current'
+_linux_lucjan='trunk'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
-_major=5.14
+_major=5.15
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.14.4.ll39
+pkgver=5.15.2.ll32
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -198,7 +209,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll39'
+ _lucjanrev='ll32'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -206,7 +217,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll39'
+ _lucjanrev='ll32'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -215,7 +226,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll36'
+ _lucjanrev='ll32'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -390,6 +401,16 @@ prepare() {
 		scripts/config --set-str CONFIG_LSM landlock,lockdown,brute,yama,bpf
 	fi
 
+    ### Enable DAMON
+	if [ -n "$_pf_damon" ]; then
+		echo "Enabling DAMON..."
+		scripts/config --enable CONFIG_DAMON
+		scripts/config --enable CONFIG_DAMON_VADDR
+		scripts/config --enable CONFIG_DAMON_DBGFS
+		scripts/config --enable CONFIG_DAMON_PADDR
+		scripts/config --enable CONFIG_DAMON_RECLAIM
+	fi
+
     ### Enable protect mappings under memory pressure
 	if [ -n "$_mm_protect" ]; then
 		echo "Enabling protect file mappings under memory pressure..."
@@ -432,13 +453,58 @@ prepare() {
 		exit
 	fi
 
-    ### Enable Linux Random Number Generator 
-	if [ -n "$_lrng_enable" ]; then
-		echo "Enabling Linux Random Number Generator ..."
+    ### Enable Linux Random Number Generator
+	if [ "$_lrng_config" = "pfkernel" ]; then
+		echo "Enabling Linux Random Number Generator with pfkernel config..."
+		scripts/config --enable CONFIG_LRNG
+		scripts/config --enable CONFIG_LRNG_OVERSAMPLE_ENTROPY_SOURCES
+		scripts/config --set-val CONFIG_CONFIG_LRNG_OVERSAMPLE_ES_BITS 64
+		scripts/config --set-val CONFIG_LRNG_SEED_BUFFER_INIT_ADD_BITS 128
+		scripts/config --enable CONFIG_LRNG_IRQ
+		scripts/config --enable CONFIG_LRNG_CONTINUOUS_COMPRESSION_ENABLED
+		scripts/config --disable CONFIG_LRNG_CONTINUOUS_COMPRESSION_DISABLED
+		scripts/config --enable CONFIG_LRNG_ENABLE_CONTINUOUS_COMPRESSION
+		scripts/config --enable CONFIG_LRNG_SWITCHABLE_CONTINUOUS_COMPRESSION
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_512
+		scripts/config --enable CONFIG_LRNG_COLLECTION_SIZE_1024
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_2048
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_4096
+		scripts/config --disable CONFIG_LRNG_COLLECTION_SIZE_8192
+		scripts/config --set-val CONFIG_LRNG_COLLECTION_SIZE 1024
+		scripts/config --enable CONFIG_LRNG_HEALTH_TESTS
+		scripts/config --set-val CONFIG_LRNG_RCT_CUTOFF 31
+		scripts/config --set-val CONFIG_LRNG_APT_CUTOFF 325
+		scripts/config --set-val CONFIG_LRNG_IRQ_ENTROPY_RATE 256
+		scripts/config --enable CONFIG_LRNG_JENT
+		scripts/config --set-val CONFIG_LRNG_JENT_ENTROPY_RATE 16
+		scripts/config --enable CONFIG_LRNG_CPU
+		scripts/config --set-val CONFIG_LRNG_CPU_ENTROPY_RATE 8
+		scripts/config --enable CONFIG_LRNG_DRNG_SWITCH
+		scripts/config --enable CONFIG_LRNG_KCAPI_HASH
+		scripts/config --module CONFIG_LRNG_DRBG
+		scripts/config --module CONFIG_LRNG_KCAPI
+		scripts/config --enable CONFIG_LRNG_TESTING_MENU
+		scripts/config --disable CONFIG_LRNG_RAW_HIRES_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_JIFFIES_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_IRQ_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_IRQFLAGS_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_RETIP_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_REGS_ENTROPY
+		scripts/config --disable CONFIG_LRNG_RAW_ARRAY
+		scripts/config --disable CONFIG_LRNG_IRQ_PERF
+		scripts/config --disable CONFIG_LRNG_ACVT_HASH
+		scripts/config --enable CONFIG_LRNG_RUNTIME_ES_CONFIG
+		scripts/config --disable CONFIG_LRNG_RUNTIME_MAX_WO_RESEED_CONFIG
+		scripts/config --disable CONFIG_LRNG_TEST_CPU_ES_COMPRESSION
+		scripts/config --enable CONFIG_LRNG_SELFTEST
+		scripts/config --disable CONFIG_LRNG_SELFTEST_PANIC
+	elif [  "$_lrng_config" = "xanmod" ]; then
+		echo "Enabling Linux Random Number Generator with xanmod config..."
 		scripts/config --enable CONFIG_LRNG
 		scripts/config --disable CONFIG_LRNG_OVERSAMPLE_ENTROPY_SOURCES
 		scripts/config --set-val CONFIG_CONFIG_LRNG_OVERSAMPLE_ES_BITS 0
 		scripts/config --set-val CONFIG_LRNG_SEED_BUFFER_INIT_ADD_BITS 0
+		scripts/config --enable CONFIG_LRNG_IRQ
 		scripts/config --enable CONFIG_LRNG_CONTINUOUS_COMPRESSION_ENABLED
 		scripts/config --disable CONFIG_LRNG_CONTINUOUS_COMPRESSION_DISABLED
 		scripts/config --enable CONFIG_LRNG_ENABLE_CONTINUOUS_COMPRESSION
@@ -457,11 +523,23 @@ prepare() {
 		scripts/config --set-val CONFIG_LRNG_IRQ_ENTROPY_RATE 256
 		scripts/config --enable CONFIG_LRNG_JENT
 		scripts/config --set-val CONFIG_LRNG_JENT_ENTROPY_RATE 16
+		scripts/config --enable CONFIG_LRNG_CPU
 		scripts/config --set-val CONFIG_LRNG_CPU_ENTROPY_RATE 8
 		scripts/config --disable CONFIG_LRNG_DRNG_SWITCH
 		scripts/config --disable CONFIG_LRNG_DRBG
 		scripts/config --disable CONFIG_LRNG_TESTING_MENU
 		scripts/config --disable CONFIG_LRNG_SELFTEST
+	elif [ "$_lrng_config" = "none" ]; then
+		echo "Disabling Linux Random Number Generator..."
+		scripts/config --disable CONFIG_LRNG
+	else
+		if [ -n "$_lrng_config" ]; then
+			error "The value $_lrng_config is invalid. Choose the correct one again."
+		else
+			error "The value is empty. Choose the correct one again."
+		fi
+		error "Enabling Linux Random Number Generator failed!"
+		exit
 	fi
 
     ### Optionally disable NUMA for 64-bit kernels only
@@ -570,6 +648,7 @@ prepare() {
 		echo "Rewrite configuration..."
 		make prepare
 		yes "" | make config >/dev/null
+		diff -u ../config .config || :
 
 	### Prepared version
 		make -s kernelrelease > version
@@ -710,9 +789,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'bdaa7f460edc9366bf7837a844f73cf1dae8bc8780e9b5ebe250e1a7bb9dcf745ee1a448f1d62b604b19be724f9ab5dc835713df6c4edc0889ec2a832d13c307'
+            'aab4e27712b8ef81505529ed198ed84beb279f89f1429a8f0d180d99e682fa613c3c0081081f0273389659d4b4a7f95f451eff8cbbc1f569a22e38388d1cc731'
             'SKIP'
-            '1e518b660a285ca17caa12bd46c11e055d92f5ae8fa53a87ce58efcc8d059f5a87748b0f2602a5ca1fcfd633a60420a2c876622a6231474016c299e09754547a')
+            'f8bbd6d72b544100e4adc89ce45741166acccb14c8fb4d5a089053dc3195cdef57b4243141ddfa43c56d0b62ecb18cbeb49baf6b38bcf87071e347c8f57a6922')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
