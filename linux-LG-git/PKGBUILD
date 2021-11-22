@@ -162,7 +162,7 @@ _pkgbase=linux-lucjan
 _major=5.15
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.15.2.ll32
+pkgver=5.15.4.ll47
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -209,7 +209,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll32'
+ _lucjanrev='ll47'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -217,7 +217,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll32'
+ _lucjanrev='ll47'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -226,7 +226,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll32'
+ _lucjanrev='ll47'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -405,8 +405,8 @@ prepare() {
 	if [ -n "$_pf_damon" ]; then
 		echo "Enabling DAMON..."
 		scripts/config --enable CONFIG_DAMON
-		scripts/config --enable CONFIG_DAMON_VADDR
-		scripts/config --enable CONFIG_DAMON_DBGFS
+		scripts/config --disable CONFIG_DAMON_VADDR
+		scripts/config --disable CONFIG_DAMON_DBGFS
 		scripts/config --enable CONFIG_DAMON_PADDR
 		scripts/config --enable CONFIG_DAMON_RECLAIM
 	fi
@@ -789,9 +789,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'aab4e27712b8ef81505529ed198ed84beb279f89f1429a8f0d180d99e682fa613c3c0081081f0273389659d4b4a7f95f451eff8cbbc1f569a22e38388d1cc731'
+            '18272551471521e222671c25b90d01d54c64111e093f50841dc655fc1f6a2a290d66eaab2675a4fe540948e3f9bc2992cb3c59e2db9376b74fd0abf4b70f0473'
             'SKIP'
-            'f8bbd6d72b544100e4adc89ce45741166acccb14c8fb4d5a089053dc3195cdef57b4243141ddfa43c56d0b62ecb18cbeb49baf6b38bcf87071e347c8f57a6922')
+            '11641d1816e051d5c409f06857b3c7e31418d2f4e3ffd3e77c1f6c8baed84826fc7f622d216731fe22b37390a1d9bcf8abdbee8017349195126b597ba57b5315')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
