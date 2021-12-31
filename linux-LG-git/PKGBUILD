@@ -117,11 +117,6 @@ _pf_damon=
 _zstd_level='ultra'
 
 ### Selecting the ZSTD module compression level
-# If you want to use ZSTD compression,
-# first install mkinitcpio-zstd:
-# https://gitlab.com/sirlucjan/lucjan-kernels/tree/master/depends
-# or
-# https://github.com/sirlucjan/lucjan-kernels/tree/master/depends
 # ATTENTION - one of two predefined values should be selected!
 # 'ultra' - highest compression ratio
 # 'normal' - standard compression ratio
@@ -158,7 +153,7 @@ _pkgbase=linux-lucjan
 _major=5.15
 _patches=${_major}-dev
 _srcname=linux
-pkgver=5.15.10.ll90
+pkgver=5.15.12.ll105
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -205,7 +200,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll90'
+ _lucjanrev='ll105'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -785,9 +780,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '3eb66d4c341894114a687ebeee58d130d59a1c2f02f3c001ab23ee53680aad4b333e08bd40effa5be1149cf30bfcbecf0054dd9db69b82432a9be3184153df13'
+            'd3f7871f519c456c718ae99def4af343a0e47ab01587ce41d6af148719511ae8c9c40a66f48036856a644e075a54f3a825d41ee5f5f4fa70cc188cdec541db5e'
             'SKIP'
-            'f9cf3491a65f2f91928e75781c5fe1967affdb2aa6cc97aeb881588aab728b1a41da2e70e1a947271bcdec83a26500626ceaaf401eaaf7f68d0bf7fe89d08b2f')
+            '5f5ff8ab21393cd00293eacfb53a4e5cfe4c0bbc1dd42dbd3d5655ff185202e3495fdd35c35a00650d86897619a11b3a303032915e1fb03364371aaa7d68d502')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
