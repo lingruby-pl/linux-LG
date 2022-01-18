@@ -100,16 +100,6 @@ _tcp_bbr2=y
 ### Enable FULLCONENAT
 _nf_cone=y
 
-### Enable SECURITY_FORK_BRUTE
-# WARNING Not recommended.
-# An experimental solution, still in testing phase.
-# Possible compilation and installation errors.
-# Leave it unselected.
-_fork_brute=
-
-### Enable DAMON
-_pf_damon=
-
 ### Selecting the ZSTD compression level
 # ATTENTION - one of two predefined values should be selected!
 # 'ultra' - highest compression ratio
@@ -144,16 +134,16 @@ _ll_rev='stable'
 # 'current' - stable releases (recommended)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='current'
+_linux_lucjan='trunk'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
-_major=5.15
+_major=5.16
 _patches=${_major}-dev
-_srcname=linux
-pkgver=5.15.12.ll105
+_srcname=linux-stable-rc
+pkgver=5.16.2.ll8
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -200,7 +190,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 #_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll105'
+ _lucjanrev='ll8'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -208,7 +198,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll81'
+ _lucjanrev='ll8'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -217,7 +207,7 @@ elif [ "$_linux_lucjan" = "trunk" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/trunk"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/trunk"
  _lucjanname='lucjan'
- _lucjanrev='ll81'
+ _lucjanrev='ll8'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -383,23 +373,6 @@ prepare() {
 		echo "Enabling FULLCONENAT..."
 		scripts/config --module CONFIG_IP_NF_TARGET_FULLCONENAT
 		scripts/config --module CONFIG_NETFILTER_XT_TARGET_FULLCONENAT
-	fi
-
-    ### Enable SECURITY_FORK_BRUTE
-	if [ -n "$_fork_brute" ]; then
-		echo "Enabling SECURITY_FORK_BRUTE..."
-		scripts/config --enable CONFIG_SECURITY_FORK_BRUTE
-		scripts/config --set-str CONFIG_LSM landlock,lockdown,brute,yama,bpf
-	fi
-
-    ### Enable DAMON
-	if [ -n "$_pf_damon" ]; then
-		echo "Enabling DAMON..."
-		scripts/config --enable CONFIG_DAMON
-		scripts/config --disable CONFIG_DAMON_VADDR
-		scripts/config --disable CONFIG_DAMON_DBGFS
-		scripts/config --enable CONFIG_DAMON_PADDR
-		scripts/config --enable CONFIG_DAMON_RECLAIM
 	fi
 
     ### Enable protect mappings under memory pressure
@@ -780,9 +753,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            'd3f7871f519c456c718ae99def4af343a0e47ab01587ce41d6af148719511ae8c9c40a66f48036856a644e075a54f3a825d41ee5f5f4fa70cc188cdec541db5e'
+            '5563f8975b33aa0a3860b4537f49cd3d9a8a2991b4bdaf9c60b04367f73c131baf40dbda3a37c9cac0885543c4b563ae27eb263801376c686bf6e6b175689e7c'
             'SKIP'
-            '5f5ff8ab21393cd00293eacfb53a4e5cfe4c0bbc1dd42dbd3d5655ff185202e3495fdd35c35a00650d86897619a11b3a303032915e1fb03364371aaa7d68d502')
+            '02d6108cf9905a2e17e1e6af2d08a492bd95977c1b8d25e2bc42f090641272c2fea812efc9e2e78a713ae4ce54bc6af78a431848e85658a86008691c1e920a50')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
