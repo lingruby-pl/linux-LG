@@ -231,7 +231,6 @@ prepare() {
 
     ### Setting version
         echo "Setting version..."
-        sed -e "/^EXTRAVERSION =/s/=.*/=/" -i Makefile
         touch .scmversion
         scripts/setlocalversion --save-scmversion
         echo "-$pkgrel" > localversion.10-pkgrel
@@ -762,7 +761,7 @@ done
 sha512sums=('SKIP'
             '7d3039c9f3031c6a4ff03448c806c62bab1b257e81510f482abd2dbe996e022940e6963bd087fce263cb583650c327fe20c70bdd62d56fe1b0a243b2dc606048'
             'SKIP'
-            'f3477c050126e7f3c03124ad264f974a4fb3ee3d432674f265f3c780dfec9a1d2d42cb0eb89c1739409d3c6fb0f39004ffd3a80b07599b974db4b423e63a006b')
+            'd6e4efa966b42a6837f6516050712fe2670c168de1367e3b9c72c7ea03b93f5ad31322930b0845583e83549a2877e924d021e0599ad2bc7cbbbdc9ed23ba23c3')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
