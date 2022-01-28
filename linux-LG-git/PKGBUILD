@@ -132,9 +132,10 @@ _ll_rev='stable'
 ### Download linux-lucjan patchset
 # ATTENTION - one of four predefined values should be selected!
 # 'current' - stable releases (recommended)
+# 'pending' - resync stable releases (active only temporarily)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='testing'
+_linux_lucjan='pending'
 
 ### Do not edit below this line unless you know what you're doing
 
@@ -143,7 +144,7 @@ _pkgbase=linux-lucjan
 _major=5.16
 _patches=${_major}-dev
 _srcname=linux-stable-rc
-pkgver=5.16.3.ll15
+pkgver=5.16.4.ll18
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -188,9 +189,17 @@ fi
 if [ "$_linux_lucjan" = "current" ]; then
 
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
-#_lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
+# _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll14'
+ _lucjanrev='ll18'
+ _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
+
+elif [ "$_linux_lucjan" = "pending" ]; then
+
+ _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/pending"
+# _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/pending"
+ _lucjanname='lucjan'
+ _lucjanrev='ll18'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -759,7 +768,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '7d3039c9f3031c6a4ff03448c806c62bab1b257e81510f482abd2dbe996e022940e6963bd087fce263cb583650c327fe20c70bdd62d56fe1b0a243b2dc606048'
+            '8ed2f1d632b24dc3a1836c5a45d66e2ef45c3b48eb6e35afabc74fc5bbb327171f0e37feafaffa971503d01bf83c5844161b894ecc5f506d97ba578d257afc1e'
             'SKIP'
             'd6e4efa966b42a6837f6516050712fe2670c168de1367e3b9c72c7ea03b93f5ad31322930b0845583e83549a2877e924d021e0599ad2bc7cbbbdc9ed23ba23c3')
 
