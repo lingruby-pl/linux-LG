@@ -15,7 +15,7 @@
 ######            Speed: 1696 MHz min/max: 800/1700 MHz Core speeds (MHz): 1: 1696 2: 1696 3: 1696 4: 1696
 
 ***
-## Use at your own risk
+### Use at your own risk
 ###### Patches developed and offered only for the last, stable line (not EOL). 
 ###### Active support is offered only for this kernel line. 
 ###### Any others are not supported anymore, but you can find patchsets for previous versions of kernel in "archive" directory. 
@@ -67,7 +67,7 @@
 * ~~[ll-reverts](https://github.com/sirlucjan/kernel-patches/tree/master/5.11-dev/ll-reverts) / [ll-reverts](https://gitlab.com/sirlucjan/kernel-patches/tree/master/5.11-dev/ll-reverts) - specific patches authored by Piotr Gorski~~
 
 ***
-
+### mkinitcpio-lucjan
 
 ```
 cd /some_path/lucjan-kernels/depends/package_name
