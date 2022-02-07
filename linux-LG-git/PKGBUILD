@@ -135,7 +135,7 @@ _ll_rev='stable'
 # 'pending' - resync stable releases (active only temporarily)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='pending'
+_linux_lucjan='testing'
 
 ### Do not edit below this line unless you know what you're doing
 
@@ -144,7 +144,7 @@ _pkgbase=linux-lucjan
 _major=5.16
 _patches=${_major}-dev
 _srcname=linux-stable-rc
-pkgver=5.16.6.ll23
+pkgver=5.16.8.ll25
 pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
@@ -191,7 +191,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll23'
+ _lucjanrev='ll24'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -207,7 +207,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll15'
+ _lucjanrev='ll25'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -768,9 +768,9 @@ for _p in "${pkgname[@]}"; do
 done
 
 sha512sums=('SKIP'
-            '6b104c478ddacb1ba300aeae536e4e4d5d3ff6bfa0497eaf1278c7ef112efecf119ca2d480c5060c84ed889862147eb1de670e14ec8cba30c04f57993c81c566'
+            'ed0aef453a79131e4b2b13c69e919737d8fffde5dda78885bcbe9834b8dab27536cc9db1484e1ea528c6c0027d07304040429049c68b91749c8438581ed2e430'
             'SKIP'
-            'ad2461b210ef26921a3fc374163a3c6bba3c2197603d1dc8baf1b04a58f0f9048cf5d6d223c0f30c9027411b116bdcf01f28c2679367db8a2614c92290af8693')
+            'd0a677ed94a57c5d70616a3ae059c1bd1b4f12d2f936d94eb3c00cd8285eedfca0f96a5965220f910ad66e90ff2b1aab64a9abe960b8278aefc3ef485f091822')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
