@@ -87,11 +87,11 @@ _mm_protect=y
 # 'none' - disable multigenerational LRU
 _lru_config='none'
 
-### Enable Linux Random Number Generator 
+### Enable Linux Random Number Generator
 # ATTENTION - one of three predefined values should be selected!
 # 'pfkernel' - enable Linux Random Number Generator with pfkernel config
 # 'xanmod' - enable Linux Random Number Generator with xanmod config
-# 'none' - disable Linux Random Number Generator 
+# 'none' - disable Linux Random Number Generator
 _lrng_config='none'
 
 ### Enable TCP_CONG_BBR2
@@ -100,19 +100,16 @@ _tcp_bbr2=y
 ### Enable FULLCONENAT
 _nf_cone=y
 
-### Selecting the ZSTD compression level
-# ATTENTION - one of two predefined values should be selected!
-# 'ultra' - highest compression ratio
-# 'normal' - standard compression ratio
-_zstd_level='ultra'
-
-### Selecting the ZSTD module compression level
+### Selecting the ZSTD kernel and modules compression level
 # ATTENTION - one of two predefined values should be selected!
 # 'ultra' - highest compression ratio
 # 'normal' - standard compression ratio
 # WARNING: the ultra settings can sometimes
 # be counterproductive in both size and speed.
-_zstd_module_level='ultra'
+_zstd_level_value='ultra'
+
+# Enable zram/zswap ZSTD compression
+_zstd_swap_compression=y
 
 ### WireGuard: y=enable full built-in, n=disable entirely, empty=with no changes in config
 _wireguard=y
@@ -142,11 +139,11 @@ _linux_lucjan='testing'
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.16
-_minor=9
+_minor=10
 _minorc=$((_minor+1))
 _rcver=rc1
 _patches=${_major}-dev
-pkgver=5.16.10.ll30.rc1
+pkgver=5.16.11.ll38.rc1
 _pkgver=${_major}.${_minorc}
 _stable=${_major}.${_minor}
 _stablerc=${_pkgver}-${_rcver}
@@ -206,7 +203,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll27'
+ _lucjanrev='ll37'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -222,7 +219,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll30'
+ _lucjanrev='ll38'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -265,7 +262,7 @@ pkgver() {
 
 prepare() {
     cd $_srcname
-    
+
     ### Applying patch from stable-review
         echo "Applying patch from stable-review..."
         patch -p1 -i ../patch-${_stablerc}
@@ -416,13 +413,6 @@ prepare() {
 		scripts/config --module CONFIG_NETFILTER_XT_TARGET_FULLCONENAT
 	fi
 
-    ### Enable SECURITY_FORK_BRUTE
-	if [ -n "$_fork_brute" ]; then
-		echo "Enabling SECURITY_FORK_BRUTE..."
-		scripts/config --enable CONFIG_SECURITY_FORK_BRUTE
-		scripts/config --set-str CONFIG_LSM landlock,lockdown,brute,yama,bpf
-	fi
-
     ### Enable protect mappings under memory pressure
 	if [ -n "$_mm_protect" ]; then
 		echo "Enabling protect file mappings under memory pressure..."
@@ -561,43 +551,40 @@ prepare() {
 		scripts/config --disable CONFIG_NUMA
 	fi
 
-    ### Selecting the ZSTD compression level
-	if [ "$_zstd_level" = "ultra" ]; then
-		echo "Enabling highest ZSTD compression ratio..."
-		scripts/config --set-val CONFIG_KERNEL_ZSTD_LEVEL 19
-		scripts/config --enable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
-	elif [ "$_zstd_level" = "normal" ]; then
-		echo "Enabling standard ZSTD compression ratio..."
-		scripts/config --set-val CONFIG_KERNEL_ZSTD_LEVEL 19
-		scripts/config --disable CONFIG_KERNEL_ZSTD_LEVEL_ULTRA
-	else
-		if [ -n "$_zstd_level" ]; then
-			error "The value $_zstd_level is invalid. Choose the correct one again."
-		else
-			error "The value is empty. Choose the correct one again."
-		fi
-		error "Selecting the ZSTD compression level failed!"
-		exit
-	fi
-
-    ### Selecting the ZSTD module compression level
-	if [ "$_zstd_module_level" = "ultra" ]; then
-		echo "Enabling highest ZSTD module compression ratio..."
+    ### Selecting the ZSTD modules and kernel compression level
+	if [ "$_zstd_level_value" = "ultra" ]; then
+		echo "Enabling highest ZSTD modules compression ratio..."
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
 		scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL_ULTRA 22
-	elif [ "$_zstd_module_level" = "normal" ]; then
-		echo "Enabling standard ZSTD module compression ratio..."
+		echo "Enabling highest ZSTD kernel compression ratio..."
+		scripts/config --set-val CONFIG_ZSTD_COMP_VAL 22
+	elif [ "$_zstd_level_value" = "normal" ]; then
+		echo "Enabling standard ZSTD modules compression ratio..."
 		scripts/config --set-val CONFIG_MODULE_COMPRESS_ZSTD_LEVEL 19
 		scripts/config --disable CONFIG_MODULE_COMPRESS_ZSTD_ULTRA
+		echo "Enabling standard ZSTD kernel compression ratio..."
+		scripts/config --set-val CONFIG_ZSTD_COMP_VAL 19
 	else
-		if [ -n "$_zstd_module_level" ]; then
-			error "The value $_zstd_module_level is invalid. Choose the correct one again."
+		if [ -n "$_zstd_level_value" ]; then
+			error "The value $_zstd_level_value is invalid. Choose the correct one again."
 		else
 			error "The value is empty. Choose the correct one again."
 		fi
-		error "Selecting the ZSTD module compression level failed!"
+		error "Selecting the ZSTD modules and kernel compression level failed!"
 		exit
+	fi
+
+    ### Enable zram/zswap ZSTD compression
+	if [ -n "$_zstd_swap_compression" ]; then
+		echo "Enabling zram ZSTD compression..."
+		scripts/config --disable CONFIG_ZRAM_DEF_COMP_LZORLE
+		scripts/config --enable CONFIG_ZRAM_DEF_COMP_ZSTD
+		scripts/config --set-str CONFIG_ZRAM_DEF_COMP zstd
+		echo "Enabling zswap ZSTD compression..."
+		scripts/config --disable CONFIG_ZSWAP_COMPRESSOR_DEFAULT_LZ4
+		scripts/config --enable CONFIG_ZSWAP_COMPRESSOR_DEFAULT_ZSTD
+		scripts/config --set-str CONFIG_ZSWAP_COMPRESSOR_DEFAULT zstd
 	fi
 
     ### Disable DVB
@@ -718,8 +705,8 @@ _package() {
 }
 
 _package-headers() {
-  pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel. Fourth Gen Intel Core i3/i5/i7 optimized."
-  provides=("${pkgbase}-headers=${pkgver}" "linux-headers=${pkgver}")
+  pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel. Sixth Gen Intel Core i3/i5/i7 optimized."
+   provides=("${pkgbase}-headers=${pkgver}" "linux-headers=${pkgver}")
   depends=("${pkgbase}=${pkgver}")
 
   cd $_srcname
@@ -732,11 +719,11 @@ _package-headers() {
   install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
   cp -t "$builddir" -a scripts
 
-  # add objtool for external module building and enabled VALIDATION_STACK option
+  # required when STACK_VALIDATION is enabled
   install -Dt "$builddir/tools/objtool" tools/objtool/objtool
 
-  # add xfs and shmem for aufs building
-  mkdir -p "$builddir"/{fs/xfs,mm}
+  # required when DEBUG_INFO_BTF_MODULES is enabled
+  install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
 
   echo "Installing headers..."
   cp -t "$builddir" -a include
@@ -798,13 +785,13 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('9f6f1c3b665b277c0432e86fb99fda2579685f680b245793f58d75d962f588a5142ff79325efa3ac233e946f076245cf8bb9f94f35f7a99932dc7f51e7f69d4e'
+sha512sums=('2d1527623f96181c4797a8f73cb769e70321e673835113fbddd1374ca891d41b924220b8fdbaa46e2af7fc49a175e56524291b1816f4f6680128155c110f703e'
             'SKIP'
-            '2b17de595b79e0bb28652cca02a55f636de061c22b0d79e61798e94b5a0ede8b93db0f6ac8e8e26167337c0727bb97e4544d1895d232bd1ad34df9198dde5a67'
+            'f935759ce2220aa1d308e56d6d652e49f8e41038c3b6165a78b69f83435b9935beb41039e1bda2244ee03c5f9bd4ab52b42fd863368b7a13173f083e8d8fe158'
             'SKIP'
-            '784a287a8897d44d8439787ab13cbe898c9f6d1c495730308a896612712afcba1a66afa94437f31a1d1357fb322bcae3747c51976cdd625618232be5b5cb58f7'
+            '14352e5c5e4b8a78f7c3e50501937f7c7c8d89c045d52996212c5446950c942723a9f5eb686c06fbc5bb4ba68f39854952c70aa594acc36c9f01e0dbfb8553be'
             'SKIP'
-            'fe88271567d9f0cc91989f738b00e28d74cb9bda40435556bfaeb56ee0f787d62f4d6ec679413c93a934961e452a1256cfeeab83c7953d3ceae2935b67c02b57')
+            '793170d801745d580433aea31a3547304a3cbe34a0a1427b833ed18c30073937a877d2e4b5049af5d608ed11681080e4d7b5c16b5cfc0fa4269369829b460fbe')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
