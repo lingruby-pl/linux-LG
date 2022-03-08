@@ -129,18 +129,18 @@ _ll_rev='stable'
 # 'pending' - resync stable releases (active only temporarily)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='current'
+_linux_lucjan='testing'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.16
-_minor=11
+_minor=12
 _minorc=$((_minor+1))
-_rcver=rc1
+_rcver=rc2
 _patches=${_major}-dev
-pkgver=5.16.12.ll47
+pkgver=5.16.13.ll52.rc1
 _pkgver=${_major}.${_minorc}
 _stable=${_major}.${_minor}
 _stablerc=${_pkgver}-${_rcver}
@@ -200,7 +200,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll47'
+ _lucjanrev='ll51'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -216,7 +216,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll46'
+ _lucjanrev='ll52'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -237,7 +237,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v5.x/${_srcname}.tar"{.xz,.sign
         # "${_llrevpath}/${_llrevpatch}"{,.sig}
         # linux-lucjan
         "${_lucjanpath}/${_lucjanpatch}"{,.sig}
-        "0076-bfq-fix-use-after-free-in-bfq_dispatch_request.patch"
         # the main kernel config files
         'config')
 
@@ -783,14 +782,13 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('d877304a868cf29bb32d059544806314c2cd975be6132eee645d1dd54ed6e1281c4ea4a18ce30c9b59a8d2b5cd9a0bcf9933a36d4754201fb04e06dee2717e7a'
+sha512sums=('01639c4cec36aa9718cdd2c720289bb26d2da6a208bb0d0466de0a82cabec3254fbae528740404cdcba33c3f1801c098c53521f2cb58f93a01b4c3daa658f78e'
             'SKIP'
-            'd0184dae5ceff72165e515a088ff960ca3b90c7f4f2e0e771435ee0f1466415eb8c2ef78941aad5ed7331eb5634c0ff268505c49f140ba11ab38eacdb3e15201'
+            '3fac4dfbea1efd09a4d0245fdcaa09f6d48502da44b879e665c032d7e6cdfb9f481faf10975102e857366ea23cd0e51e418cad95f4fdcd08f9eb77478bcee3c2'
             'SKIP'
-            'b28cd78872b21ce3672bb4d19fc02e629b6faa8ea1347daa012c556bd86bd1a642296753f77e7f0a9f9c409aad48a9f74f6ff97a6a68dd193178378cc757e460'
+            '01d0cf92a78691374d5abf3bde0117643d61095148d8c648f7bbc0c78b68563b36cb3df42ed537fde56d2a9627215c5347f6027471fa528e6d5994bd9b94f575'
             'SKIP'
-            'ce4be792a5ed00de3e559c63a4b37ccee2f929a533db75b9d385e0a6c2cf500a6dcc3414e103e808a59a67a92fd7b67e7edd944714558579dd78c028b25aeee3'
-            '606bb367dc54c1f6787773539e4658a9a9459dc11517b827904dfb4ca7bd1422a1c0d036d8fcb604ddd7f5954c54ea4f1c9c9ae896fe4ecda59b4f22ae3ecc4e')
+            'af42a052302cfc300af00b89e4bf6c8c46e90039b3b579715ba3c3547adea8334b0d426a5b9d056f6c75d66ad6e0704068bc1fc53c1f878ced5c615d562407a2')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
