@@ -129,18 +129,18 @@ _ll_rev='stable'
 # 'pending' - resync stable releases (active only temporarily)
 # 'testing' - rc releases (active only temporarily)
 # 'trunk' - pre-rc releases (active only temporarily)
-_linux_lucjan='testing'
+_linux_lucjan='current'
 
 ### Do not edit below this line unless you know what you're doing
 
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.16
-_minor=14
+_minor=15
 _minorc=$((_minor+1))
 _rcver=rc1
 _patches=${_major}-dev
-pkgver=5.16.15.ll57.rc1
+pkgver=5.16.16.ll62
 _pkgver=${_major}.${_minorc}
 _stable=${_major}.${_minor}
 _stablerc=${_pkgver}-${_rcver}
@@ -200,7 +200,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll56'
+ _lucjanrev='ll62'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -208,7 +208,7 @@ elif [ "$_linux_lucjan" = "pending" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/pending"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/pending"
  _lucjanname='lucjan'
- _lucjanrev='ll53'
+ _lucjanrev='ll62'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "testing" ]; then
@@ -216,7 +216,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll57'
+ _lucjanrev='ll59'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -782,13 +782,13 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('3daf1b5a01cbab632492e18a8e71aaf2085545f4944ce587bc7c27e86a0a739d0cbffe7890ce9c5bc863b3c5083281bca6ed4df8d3c69d60c6dcc210cd86993e'
+sha512sums=('6f0245740ebebc6aa687c5fb1226aee492d543fd202f88963a488cfa609e30d3d1116c362638be83f201cf08380b9c696a1d2ccb1e0934f84dde14eeb9b4ca25'
             'SKIP'
-            '4de3ad5f8e16b6deffff374b848971fc194ea1a18d3224a7a4ab6bd8ad242c264eee7b0f7c13410c766b2b28810bfd7b9c35e48e32edf224b33f027a31bc07fe'
+            '4173389597886a56562eab38cffc0e3ed51bd86c0abaf894ad3612bbb2437652f40b9dbe3a6aeb6d4c599d4f07fe2ed57d800d1649b9010c3e1865b77cddd86d'
             'SKIP'
-            'b5110b84b1a347856bb308c5fe5cb6f88ee5633313c9c80b92ad9b5fd85a0744ce06dc48a3cccad8fcf7ab71d1745980ed57e79b402d07bb9f8be0a670591ca0'
+            'c0ba6c5dc0736fe0e82b952a4308c9e1ab7e6fb3e13e0c1e62f45b61197133e1f31362f883049876a3d1cc1623a9d06bd0515b32a6b062e7639bd53ef7bc0366'
             'SKIP'
-            '153a330b5a482e3429a3f1de8f5332259a1baad2ee8e1aace8e5b6f69f5b6b8b37db3f4fb1f38e9fc0eb691c70f7034fc81fd40e1064c209fb6c721aee5316c4')
+            '581bcf985f72d8a6aac52e5aef612036f3891598e3ea11fb3d01a086d8389217d01d72cf891b2c28cb3dfc2867c72c34067ff858b6bdc1d262a476082180b52d')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
