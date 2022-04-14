@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 5.17.2.ll34 Kernel Configuration
+# Linux/x86 5.17.3.ll37 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (GCC) 11.2.0"
 CONFIG_CC_IS_GCC=y
@@ -1091,7 +1091,7 @@ CONFIG_ARCH_HAS_PTE_SPECIAL=y
 CONFIG_SECRETMEM=y
 # CONFIG_ANON_VMA_NAME is not set
 CONFIG_LRU_GEN=y
-CONFIG_LRU_GEN_ENABLED=y
+# CONFIG_LRU_GEN_ENABLED is not set
 # CONFIG_LRU_GEN_STATS is not set
 
 #
