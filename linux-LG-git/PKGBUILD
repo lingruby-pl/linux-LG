@@ -142,9 +142,9 @@ _linux_lucjan='current'
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.17
-_minor=4
+_minor=5
 _patches=${_major}-dev
-pkgver=5.17.4.ll40
+pkgver=5.17.5.ll48
 _pkgver=${_major}.${_minor}
 _srcname=linux-${_pkgver}
 pkgrel=1
@@ -193,7 +193,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll40'
+ _lucjanrev='ll48'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -209,7 +209,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll39'
+ _lucjanrev='ll46'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -775,11 +775,11 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('a0f1945eb61527aac886875a83ad720bff3d6cd06ed0ee92ff7795e4f854d797f7688a102f1e8aa4425e96aab789f4b4c82104591de32fdf34ffd5c13622bbf3'
+sha512sums=('9a0b97b0179094fa4c3f91ad1f94ac274b4b7946b3c5112995fd5f60b263389772491f1a756186bb638ee868d42ccd7449cb9aa3227f1637949b6b54418c6bab'
             'SKIP'
-            '6ffd1b1e4a51cd0dc26810f718d46f9b640bf61d33463a058b51d6fca9508250c4248e02bf950f1b161088088a0feee948f2c97a601a9363f6677fdcc7b5be0b'
+            '342a0a4cc4b34877becb1127538358a456d5ba2f56e80782b7ab203f906726f2a30292171a75a2d80f903f145547ab5b066de4fcc982698fbbafe8a2eadbaa46'
             'SKIP'
-            'faa33759aa355db635b2e6250d0719c896fc20db94d184c4af7eb6bd962a6c7931bbe7ff5265b2ae5c8ca7a5c194178df8c2006ad1c272d9dbb2bc4204c6bc4e')
+            '963a0b8ec2b405327ef3458d933b91fb6d52ef0156ea62c8f9dd65230a911be3e7ab18498ef82d858c117963ee411160fb9db1f5f15bd079fa041e07eb31eede')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
