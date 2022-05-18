@@ -142,9 +142,9 @@ _linux_lucjan='current'
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.17
-_minor=8
+_minor=9
 _patches=${_major}-dev
-pkgver=5.17.8.ll68
+pkgver=5.17.9.ll71
 _pkgver=${_major}.${_minor}
 _srcname=linux-${_pkgver}
 pkgrel=1
@@ -193,7 +193,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll68'
+ _lucjanrev='ll71'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -209,7 +209,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll58'
+ _lucjanrev='ll71'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -668,11 +668,11 @@ build() {
 _package() {
   pkgdesc="The $pkgdesc kernel and modules with the ${_lucjanname}-${_lucjanrev} patchset. Fourth Gen Intel Core i3/i5/i7 optimized."
   depends=('coreutils' 'kmod' 'initramfs')
-  optdepends=('crda: to set the correct wireless channels of your country'
+  optdepends=('wireless-regdb: to set the correct wireless channels of your country'
               'linux-firmware: firmware images needed for some devices'
               'modprobed-db: Keeps track of EVERY kernel module that has ever been probed - useful for those of us who make localmodconfig'
-              'initramfs-zstd: install modules compressed in ZSTD format - read the information above in PKGBUILD')
-  provides=("${pkgbase}=${pkgver}" "linux=${pkgver}" VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE)
+              'uksmd: Userspace KSM helper daemon')
+  provides=("${pkgbase}=${pkgver}" "linux=${pkgver}" VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE UKSMD-BUILTIN)
 
   cd $_srcname
   local kernver="$(<version)"
@@ -775,11 +775,11 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('032feea7138d0b9b016a50769e6f10889e0ec8cb532569b1aaecac957211e60cc9207aa6ac2bb379c967c8322f8ccb19d2834bf1f88c03d0774b087e08a9a22a'
+sha512sums=('8866b6f0ab8cbc122bbed0083ee9b351193780143259b818a15cdde1581222ee728a60344ea9267d7f3e6b1563b24a23100f46e6bd185fdc1e169b804e48cc2e'
             'SKIP'
-            'fb84a22f356e343d0b726651c10b77e55b1a8cdc1f6b5c02a14b9c993a0bc5ae028134c0a722e2aef4f22f094f4b042615fd978b3eb5197cf4ab7dd6eeb1e910'
+            'b47f1db3aeed22ac1adfd6d28e1048426bc0c0c50a8221c787df6ad1d8622609ca44418f0529d4a7ba106b272dce3a61eb54e8e0aa3743899bbda344fae63faa'
             'SKIP'
-            'd225ea8e9703c818a1aeb729bc1e8ba8076c188f97f0941db778a9bee4152a8ed9dc7b51ab30ffdd5f80f348aa81b6f4ce5e7d62004db7f506f42c5a18fa159c')
+            'd6dc5bee1c8b2c5647484b9a8bee1a72a2418fb765bf639a574ac6dc4d4ae73b06d3c77e8580f73e6080023b83c11af2d0cf6494c8dbec314637c54380547186')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
