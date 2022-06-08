@@ -82,10 +82,10 @@ _mm_protect=y
 
 ### Enable multigenerational LRU
 # ATTENTION - one of three predefined values should be selected!
-# 'zen' - enable multigenerational LRU with zenkernel config
-# 'xanmod' - enable multigenerational LRU with xanmod config
+# 'standard' - enable multigenerational LRU 
+# 'stats' - enable multigenerational LRU with stats
 # 'none' - disable multigenerational LRU
-_lru_config='zen'
+_lru_config='standard'
 
 ### Enable Linux Random Number Generator
 _lrng_enable=y
@@ -101,9 +101,9 @@ _rtw88=
 
 ### Enable SPECULATIVE_PAGE_FAULT
 # ATTENTION - one of two predefined values should be selected!
-# 'partial' - enable partial support SPECULATIVE_PAGE_FAULT
-# 'full' - enable full support SPECULATIVE_PAGE_FAULT
-_spf_config='partial'
+# 'standard' - enable SPECULATIVE_PAGE_FAULT
+# 'stats' - enable support SPECULATIVE_PAGE_FAULT with stats
+_spf_config='standard'
 
 ### Selecting the ZSTD kernel and modules compression level
 # ATTENTION - one of two predefined values should be selected!
@@ -143,7 +143,7 @@ _pkgbase=linux-lucjan
 _major=5.18
 _minor=2
 _patches=${_major}-dev
-pkgver=5.18.2.ll39
+pkgver=5.18.2.ll43
 _pkgver=${_major}.${_minor}
 _srcname=linux-${_pkgver}
 pkgrel=1
@@ -192,7 +192,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll39'
+ _lucjanrev='ll43'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -208,7 +208,7 @@ elif [ "$_linux_lucjan" = "testing" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/testing"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/testing"
  _lucjanname='lucjan'
- _lucjanrev='ll22'
+ _lucjanrev='ll44'
  _lucjanrc='rc1'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}-${_lucjanrc}.patch"
 
@@ -408,12 +408,12 @@ prepare() {
 	fi
 
     ### Enable SPECULATIVE_PAGE_FAULT
-	if [ "$_spf_config" = "partial" ]; then
-		echo "Enabling partial SPECULATIVE_PAGE_FAULT..."
+	if [ "$_spf_config" = "standard" ]; then
+		echo "Enabling SPECULATIVE_PAGE_FAULT..."
 		scripts/config --enable CONFIG_SPECULATIVE_PAGE_FAULT
 		scripts/config --disable CONFIG_SPECULATIVE_PAGE_FAULT_STATS
-	elif [ "$_spf_config" = "full" ]; then
-		echo "Enabling full SPECULATIVE_PAGE_FAULT..."
+	elif [ "$_spf_config" = "stats" ]; then
+		echo "Enabling SPECULATIVE_PAGE_FAULT with stats..."
 		scripts/config --enable CONFIG_SPECULATIVE_PAGE_FAULT
 		scripts/config --enable CONFIG_SPECULATIVE_PAGE_FAULT_STATS
 	else
@@ -439,16 +439,16 @@ prepare() {
 	fi
 
     ### Enable multigenerational LRU
-	if [ "$_lru_config" = "zen" ]; then
-		echo "Enabling multigenerational LRU with zenkernel config..."
+	if [ "$_lru_config" = "standard" ]; then
+		echo "Enabling multigenerational LRU..."
 		scripts/config --enable CONFIG_LRU_GEN
 		scripts/config --enable CONFIG_LRU_GEN_ENABLED
 		scripts/config --disable CONFIG_LRU_GEN_STATS
-	elif [ "$_lru_config" = "xanmod" ]; then
-		echo "Enabling multigenerational LRU with xanmod config..."
+	elif [ "$_lru_config" = "stats" ]; then
+		echo "Enabling multigenerational LRU with stats..."
 		scripts/config --enable CONFIG_LRU_GEN
-		scripts/config --disable CONFIG_LRU_GEN_ENABLED
-		scripts/config --disable CONFIG_LRU_GEN_STATS
+		scripts/config --enable CONFIG_LRU_GEN_ENABLED
+		scripts/config --enable CONFIG_LRU_GEN_STATS
 	elif [ "$_lru_config" = "none" ]; then
 		echo "Disabling multigenerational LRU..."
 		scripts/config --disable CONFIG_LRU_GEN
@@ -686,7 +686,7 @@ _package() {
 _package-headers() {
   pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel. Fourth Gen Intel Core i3/i5/i7 optimized."
   provides=("${pkgbase}-headers=${pkgver}" "linux-headers=${pkgver}")
-  depends=("${pkgbase}=${pkgver}")
+  depends=("${pkgbase}=${pkgver}" 'pahole')
 
   cd $_srcname
   local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
@@ -765,9 +765,9 @@ done
 
 sha512sums=('2f7b43dc2a9092abb6247fd4bafcbf0e1697a4db68b40b00b369d003acbe099583fbb927e191a5f95710bad598ee10bf41b46f15157555b4f34cb1aba03a7c07'
             'SKIP'
-            '2c0bcb61e8f7d52fbb63a0fc98f7b0bed439ca78b6b809eacca33ba78f3b8513869ac7a8341fe5fc48aa2fcd7c6bdf6f015884f7b23dd18174efe49d27d30624'
+            'a67cbdfa27b7048444cf53a15a32404ec4c1e517db733344bd55368eeeb769c924c1dd8a2ab830f9dfe59e80278896c0db003de9b08a9eb7326d423b405cac73'
             'SKIP'
-            '11fa7602dcf1330ecb2f1f40f3a952befae129dad572a3a3ec49580cf4aa6dc23a00d70d949ba799dd0519c86fb0dcf31518295f622792332cb46f99fef984bb')
+            'c40bd0a048a696de8baa237d75c372c7d9fc24df6ce1a3ccc02773cb051e864feb2fb05230a100d9e2d9a6bad6ce9ed4f98449aa13888d2ee44b76acd2b63cf1')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds

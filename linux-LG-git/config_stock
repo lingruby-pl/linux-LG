@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 5.18.1.ll34 Kernel Configuration
+# Linux/x86 5.18.2.ll43 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
@@ -921,7 +921,6 @@ CONFIG_ARCH_HAS_GCOV_PROFILE_ALL=y
 CONFIG_HAVE_GCC_PLUGINS=y
 CONFIG_GCC_PLUGINS=y
 # CONFIG_GCC_PLUGIN_LATENT_ENTROPY is not set
-# CONFIG_GCC_PLUGIN_RANDSTRUCT is not set
 # end of General architecture-dependent options
 
 CONFIG_RT_MUTEXES=y
@@ -2665,8 +2664,8 @@ CONFIG_LATTICE_ECP3_CONFIG=m
 CONFIG_DW_XDATA_PCIE=m
 CONFIG_PCI_ENDPOINT_TEST=m
 CONFIG_XILINX_SDFEC=m
-# CONFIG_WINESYNC is not set
 CONFIG_MISC_RTSX=m
+# CONFIG_WINESYNC is not set
 CONFIG_C2PORT=m
 CONFIG_C2PORT_DURAMAR_2150=m
 
@@ -10324,6 +10323,10 @@ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
 CONFIG_CC_HAS_ZERO_CALL_USED_REGS=y
 # CONFIG_ZERO_CALL_USED_REGS is not set
 # end of Memory initialization
+
+CONFIG_RANDSTRUCT_NONE=y
+# CONFIG_RANDSTRUCT_FULL is not set
+# CONFIG_RANDSTRUCT_PERFORMANCE is not set
 # end of Kernel hardening options
 # end of Security options
 
