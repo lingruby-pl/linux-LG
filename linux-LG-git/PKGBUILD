@@ -146,7 +146,7 @@ _patches=${_major}-dev
 pkgver=5.18.2.ll43
 _pkgver=${_major}.${_minor}
 _srcname=linux-${_pkgver}
-pkgrel=1
+pkgrel=2
 pkgdesc='Linux LL'
 arch=('x86_64')
 url="https://github.com/lingruby-pl/linux-LG/blob/master/README.md"
@@ -701,9 +701,6 @@ _package-headers() {
   # required when STACK_VALIDATION is enabled
   install -Dt "$builddir/tools/objtool" tools/objtool/objtool
 
-  # required when DEBUG_INFO_BTF_MODULES is enabled
-  install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
-
   echo "Installing headers..."
   cp -t "$builddir" -a include
   cp -t "$builddir/arch/x86" -a arch/x86/include
@@ -767,7 +764,7 @@ sha512sums=('2f7b43dc2a9092abb6247fd4bafcbf0e1697a4db68b40b00b369d003acbe099583f
             'SKIP'
             'a67cbdfa27b7048444cf53a15a32404ec4c1e517db733344bd55368eeeb769c924c1dd8a2ab830f9dfe59e80278896c0db003de9b08a9eb7326d423b405cac73'
             'SKIP'
-            'c40bd0a048a696de8baa237d75c372c7d9fc24df6ce1a3ccc02773cb051e864feb2fb05230a100d9e2d9a6bad6ce9ed4f98449aa13888d2ee44b76acd2b63cf1')
+            'cdfe37831876609d20c4926cc36c1093f6aa3f56d34b7d088e6a0f8670cf312119a6af7f4578be9c83648453fcb860bd4266e9b8d238d020143cae1f5b86c09e')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
