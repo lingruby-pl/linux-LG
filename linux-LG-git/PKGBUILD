@@ -141,12 +141,12 @@ _linux_lucjan='current'
 pkgbase=linux-lin-git+
 _pkgbase=linux-lucjan
 _major=5.18
-_minor=2
+_minor=3
 _patches=${_major}-dev
-pkgver=5.18.2.ll43
+pkgver=5.18.3.ll46
 _pkgver=${_major}.${_minor}
 _srcname=linux-${_pkgver}
-pkgrel=2
+pkgrel=1
 pkgdesc='Linux LL'
 arch=('x86_64')
 url="https://github.com/lingruby-pl/linux-LG/blob/master/README.md"
@@ -192,7 +192,7 @@ if [ "$_linux_lucjan" = "current" ]; then
  _lucjanpath="https://raw.githubusercontent.com/sirlucjan/${_pkgbase}/master/current"
 # _lucjanpath="https://gitlab.com/sirlucjan/${_pkgbase}/raw/master/current"
  _lucjanname='lucjan'
- _lucjanrev='ll43'
+ _lucjanrev='ll46'
  _lucjanpatch="${_major}-${_lucjanname}-${_lucjanrev}.patch"
 
 elif [ "$_linux_lucjan" = "pending" ]; then
@@ -760,11 +760,11 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-sha512sums=('2f7b43dc2a9092abb6247fd4bafcbf0e1697a4db68b40b00b369d003acbe099583fbb927e191a5f95710bad598ee10bf41b46f15157555b4f34cb1aba03a7c07'
+sha512sums=('780c8d6446ee90264d374bee0afa8e3d3628f6e98fc8599f3668e2ac1c05fa90dfe102e976a9ed73a61b7c4a0e4227715c4c018c5a149037f473f700cd255cda'
             'SKIP'
-            'a67cbdfa27b7048444cf53a15a32404ec4c1e517db733344bd55368eeeb769c924c1dd8a2ab830f9dfe59e80278896c0db003de9b08a9eb7326d423b405cac73'
+            '74751e9e93bd668a9c32600919c841b36190b87252e124b62f75c88e1d665968d367323dadc1f698cc589f3e6927d98ad14af74c210ceecd43b4201a62e52ed2'
             'SKIP'
-            'cdfe37831876609d20c4926cc36c1093f6aa3f56d34b7d088e6a0f8670cf312119a6af7f4578be9c83648453fcb860bd4266e9b8d238d020143cae1f5b86c09e')
+            'a9f84e89cb733b7e68789aa4735200cbcf9cf10ad2f2d8b4657be709d06becd8c1747fb71227a7330c348782ff3faed216d0bec6f61b6e69718658b50dc14047')
 
 validpgpkeys=(
               'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
