@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 5.18.3.ll46 Kernel Configuration
+# Linux/x86 5.18.4.ll57 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
@@ -3692,21 +3692,7 @@ CONFIG_MEDIA_PCI_SUPPORT=y
 # CONFIG_DVB_SMIPCIE is not set
 # CONFIG_DVB_BUDGET_CORE is not set
 # CONFIG_VIDEO_IPU3_CIO2 is not set
-CONFIG_RADIO_ADAPTERS=m
-# CONFIG_RADIO_MAXIRADIO is not set
-# CONFIG_RADIO_SAA7706H is not set
-# CONFIG_RADIO_SHARK is not set
-# CONFIG_RADIO_SHARK2 is not set
-# CONFIG_RADIO_SI4713 is not set
-# CONFIG_RADIO_TEA5764 is not set
-# CONFIG_RADIO_TEF6862 is not set
-# CONFIG_RADIO_WL1273 is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_KEENE is not set
-# CONFIG_USB_MA901 is not set
-# CONFIG_USB_MR800 is not set
-# CONFIG_USB_RAREMONO is not set
-# CONFIG_RADIO_SI470X is not set
+# CONFIG_RADIO_ADAPTERS is not set
 CONFIG_MEDIA_PLATFORM_DRIVERS=y
 CONFIG_V4L_PLATFORM_DRIVERS=y
 CONFIG_DVB_PLATFORM_DRIVERS=y
@@ -5470,6 +5456,7 @@ CONFIG_FS_MBCACHE=m
 # CONFIG_BTRFS_FS is not set
 # CONFIG_NILFS2_FS is not set
 # CONFIG_F2FS_FS is not set
+# CONFIG_BCACHEFS_FS is not set
 # CONFIG_ZONEFS_FS is not set
 # CONFIG_SPADFS_FS is not set
 CONFIG_FS_DAX=y
