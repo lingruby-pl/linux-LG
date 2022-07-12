@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 5.18.10.ll114 Kernel Configuration
+# Linux/x86 5.18.11.ll118 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
@@ -1548,7 +1548,22 @@ CONFIG_HAMRADIO=y
 #
 # Packet Radio protocols
 #
-# CONFIG_AX25 is not set
+CONFIG_AX25=y
+CONFIG_AX25_DAMA_SLAVE=y
+CONFIG_NETROM=y
+CONFIG_ROSE=y
+
+#
+# AX.25 network device drivers
+#
+CONFIG_MKISS=y
+CONFIG_6PACK=y
+CONFIG_BPQETHER=y
+CONFIG_BAYCOM_SER_FDX=y
+CONFIG_BAYCOM_SER_HDX=y
+# CONFIG_YAM is not set
+# end of AX.25 network device drivers
+
 # CONFIG_CAN is not set
 # CONFIG_BT is not set
 # CONFIG_AF_RXRPC is not set
@@ -6080,7 +6095,7 @@ CONFIG_CRYPTO_LIB_SHA256=y
 
 CONFIG_LIB_MEMNEQ=y
 CONFIG_CRC_CCITT=y
-CONFIG_CRC16=m
+CONFIG_CRC16=y
 CONFIG_CRC_T10DIF=y
 CONFIG_CRC64_ROCKSOFT=y
 # CONFIG_CRC_ITU_T is not set
