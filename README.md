@@ -1,4 +1,6 @@
 ***
+# I switched to [CachyOS kernels](https://github.com/CachyOS/linux-cachyos)
+***
 # My kernel linux-LG-ll
 
 ###### for
